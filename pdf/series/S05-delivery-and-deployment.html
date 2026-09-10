@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD Engineering — Series S05: Delivery & Deployment</title>
+<style>
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--panel-2:#1a201d;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61;--blue:#4387ff;--amber:#d99a24;--red:#d94b4b;--artifact:#8b6cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.pipeline,.lane,.terminal,.cmdres,.callout,.vflow,.dec,table.cmp,.qa,.kv{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--amber)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--amber);margin-bottom:26px;line-height:2}
+.vpipe{display:flex;flex-direction:column;margin:6px 0 26px}
+.vnode{display:flex;align-items:center;gap:12px}
+.vnode .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 10px rgba(0,184,124,.55);flex:none}
+.vnode.amber .dot{border-color:var(--amber);box-shadow:0 0 10px rgba(217,154,36,.55)}
+.vnode.purp .dot{border-color:var(--artifact);box-shadow:0 0 10px rgba(139,108,255,.55)}
+.vnode img{width:22px;height:22px;flex:none}
+.vnode b{font-size:12px;letter-spacing:2px}
+.vnode small{font-size:10px;color:var(--text-muted)}
+.vline{width:2px;height:16px;background:#2c3531;margin-left:6px}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:32px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+.lane{border:1px solid var(--line);background:var(--white);margin:8px 0}
+.lane .lt{font-size:9px;letter-spacing:2px;padding:5px 10px;color:var(--white);display:flex;justify-content:space-between}
+.lane.stg .lt{background:var(--amber)}.lane.prd .lt{background:var(--accent-dark)}
+.lane .lb{padding:10px 12px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;line-height:1.7}
+.terminal{background:var(--panel);color:var(--text-light);border-radius:8px;padding:16px 18px;font-family:"Cascadia Code",Consolas,monospace;font-size:11.5px;line-height:1.65;margin:12px 0;white-space:pre-wrap}
+.terminal .c{color:var(--text-muted)}.terminal .g{color:var(--accent)}
+table.cmp{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+table.cmp th{background:var(--panel);color:var(--text-light);font-size:10.5px;letter-spacing:1px;padding:9px 10px;text-align:left}
+table.cmp td{border:1px solid var(--line);padding:9px 10px;background:var(--white);line-height:1.55}
+table.cmp td:first-child{font-weight:700;background:#eef0ee}
+.callout{border-left:3px solid var(--accent);background:var(--white);padding:12px 14px;margin:12px 0}
+.callout h4{font-size:11px;letter-spacing:2px;color:var(--accent-dark);margin-bottom:5px}
+.callout p{font-size:13px;line-height:1.6}
+.vflow{margin:10px 0}
+.fnode{background:var(--white);border:1px solid var(--line);padding:10px 14px;font-size:12.5px;display:flex;align-items:center;gap:10px}
+.fnode img{width:24px;height:24px;flex:none}
+.fnode b{letter-spacing:1px;font-size:12px}
+.fnode small{color:var(--muted);font-size:11px}
+.fnode.gate{border-left:4px solid var(--amber);background:#fdf8ec}
+.farrow{text-align:center;color:var(--accent-dark);font-weight:700;line-height:1.1;padding:1px 0}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.qa{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.65}
+.qa .qq{font-weight:700}.qa .aa{color:var(--accent-dark);font-weight:700}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.qa,.kv,.vflow{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:26px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+.vflow{margin:10px 0}
+.fnode{background:var(--white);border:1px solid var(--line);padding:10px 14px;font-size:12.5px;display:flex;align-items:center;gap:10px}
+.fnode img{width:24px;height:24px;flex:none}
+.fnode b{letter-spacing:1px;font-size:12px}
+.fnode small{color:var(--muted);font-size:11px}
+.farrow{text-align:center;color:var(--accent-dark);font-weight:700;line-height:1.1;padding:1px 0}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.qa{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.65}
+.qa .qq{font-weight:700}.qa .aa{color:var(--accent-dark);font-weight:700}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}table.cmp,.qa,.kv{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:26px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+table.cmp{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+table.cmp th,table.cmp td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+table.cmp th{background:var(--panel);color:var(--text-light);font-size:11px;letter-spacing:1px}
+table.cmp td{background:var(--white)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--panel-2:#1a201d;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61;--blue:#4387ff;--amber:#d99a24;--red:#d94b4b;--artifact:#8b6cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}table.cmp,.qa,.kv,.callout,.vflow{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:42px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--amber)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--amber);margin-bottom:26px;line-height:2}
+.vpipe{display:flex;flex-direction:column;margin:6px 0 26px}
+.vnode{display:flex;align-items:center;gap:12px}
+.vnode .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--amber);box-shadow:0 0 10px rgba(217,154,36,.55);flex:none}
+.vnode.g .dot{border-color:var(--accent);box-shadow:0 0 10px rgba(0,184,124,.55)}
+.vnode img{width:22px;height:22px;flex:none}
+.vnode b{font-size:12px;letter-spacing:2px}
+.vnode small{font-size:10px;color:var(--text-muted)}
+.vline{width:2px;height:16px;background:#2c3531;margin-left:6px}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:28px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+table.cmp{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0}
+table.cmp th{background:var(--panel);color:var(--text-light);font-size:10px;letter-spacing:1px;padding:8px 9px;text-align:left}
+table.cmp td{border:1px solid var(--line);padding:8px 9px;background:var(--white);line-height:1.5}
+table.cmp td:first-child{font-weight:700;background:#eef0ee}
+.callout{border-left:3px solid var(--amber);background:var(--white);padding:12px 14px;margin:12px 0}
+.callout h4{font-size:11px;letter-spacing:2px;color:#a5761a;margin-bottom:5px}
+.callout p{font-size:13px;line-height:1.6}
+.vflow{margin:10px 0}
+.fnode{background:var(--white);border:1px solid var(--line);padding:10px 14px;font-size:12.5px;display:flex;align-items:center;gap:10px}
+.fnode img{width:24px;height:24px;flex:none}
+.fnode b{letter-spacing:1px;font-size:12px}
+.fnode small{color:var(--muted);font-size:11px}
+.farrow{text-align:center;color:var(--accent-dark);font-weight:700;line-height:1.1;padding:1px 0}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.qa{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.65}
+.qa .qq{font-weight:700}.qa .aa{color:var(--accent-dark);font-weight:700}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}table.cmp,.qa,.kv{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:26px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+table.cmp{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+table.cmp th,table.cmp td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+table.cmp th{background:var(--panel);color:var(--text-light);font-size:11px;letter-spacing:1px}
+table.cmp td{background:var(--white)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.qa{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.65}
+.qa .qq{font-weight:700}.qa .aa{color:var(--accent-dark);font-weight:700}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--panel-2:#1a201d;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61;--blue:#4387ff;--amber:#d99a24;--red:#d94b4b;--artifact:#8b6cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.pipeline,.lane,.terminal,.cmdres,.callout,.vflow,.dec,table.cmp,.qa,.kv{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:42px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--blue)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--blue);margin-bottom:26px;line-height:2}
+.vpipe{display:flex;flex-direction:column;margin:6px 0 26px}
+.vnode{display:flex;align-items:center;gap:12px}
+.vnode .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--blue);box-shadow:0 0 10px rgba(67,135,255,.55);flex:none}
+.vnode.g .dot{border-color:var(--accent);box-shadow:0 0 10px rgba(0,184,124,.55)}
+.vnode img{width:22px;height:22px;flex:none}
+.vnode b{font-size:12px;letter-spacing:2px}
+.vnode small{font-size:10px;color:var(--text-muted)}
+.vline{width:2px;height:16px;background:#2c3531;margin-left:6px}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:30px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+.terminal{background:var(--panel);color:var(--text-light);border-radius:8px;padding:16px 18px;font-family:"Cascadia Code",Consolas,monospace;font-size:11.5px;line-height:1.65;margin:12px 0;white-space:pre-wrap}
+.terminal .g{color:var(--accent)}.terminal .r{color:var(--red)}.terminal .c{color:var(--text-muted)}
+table.cmp{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+table.cmp th{background:var(--panel);color:var(--text-light);font-size:10.5px;letter-spacing:1px;padding:9px 10px;text-align:left}
+table.cmp td{border:1px solid var(--line);padding:9px 10px;background:var(--white);line-height:1.55}
+table.cmp td:first-child{font-weight:700;background:#eef0ee}
+.callout{border-left:3px solid var(--accent);background:var(--white);padding:12px 14px;margin:12px 0}
+.callout h4{font-size:11px;letter-spacing:2px;color:var(--accent-dark);margin-bottom:5px}
+.callout p{font-size:13px;line-height:1.6}
+.vflow{margin:10px 0}
+.fnode{background:var(--white);border:1px solid var(--line);padding:10px 14px;font-size:12.5px;display:flex;align-items:center;gap:10px}
+.fnode img{width:24px;height:24px;flex:none}
+.fnode b{letter-spacing:1px;font-size:12px}
+.fnode small{color:var(--muted);font-size:11px}
+.fnode.bad{border-left:4px solid var(--red)}
+.farrow{text-align:center;color:var(--accent-dark);font-weight:700;line-height:1.1;padding:1px 0}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.qa{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.65}
+.qa .qq{font-weight:700}.qa .aa{color:var(--accent-dark);font-weight:700}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+</style>
+</head>
+<body>
+
+<div class="page cover">
+<div class="brand">CI/CD SYSTEMS · SERIES EDITION · S05</div>
+<h1>DELIVERY<br>& DEPLOYMENT</h1>
+<div class="sub">Releasable always, deployed by decision — then observed.</div>
+<div class="tri">PDF 05: CONTINUOUS DELIVERY<br>PDF 24: CONTINUOUS DEPLOYMENT<br>PDF 25: ENVIRONMENTS & RELEASE<br>PDF 20: DEPLOYMENT STRATEGIES<br>PDF 27: ROLLBACK & RECOVERY<br>+ 1 MORE</div>
+<div class="foot"><span>SERIES EDITION · 6 CHAPTERS</span><span class="sig">Nabawy</span></div>
+</div>
+
+<div class="page opener">
+<div class="phead"><span class="ch">Series Edition</span> &nbsp; S05<hr><h2>Contents</h2>Chapters</div>
+<div class="vflow">
+<div class="fnode"><b>PDF 05: Continuous Delivery</b><small>5 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 24: Continuous Deployment</b><small>4 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 25: Environments & Release</b><small>4 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 20: Deployment Strategies</b><small>4 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 27: Rollback & Recovery</b><small>4 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 06: Observability &amp; Feedback</b><small>5 pages</small></div><div class="farrow">↓</div>
+</div>
+<div class="printnote">OMNIBUS — member chapters keep their original page numbers. Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>S05</span><span>02 / 28</span></div>
+</div>
+<div id="s05-p1" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; ENGINEERING MANUAL &nbsp;·&nbsp; PDF 05</div>
+<h1>CONTINUOUS<br><span>DELIVERY</span></h1>
+<div class="sub">Releasable always — deployed by decision</div>
+<div class="tri">STAGING AUTO · PRODUCTION GATED<br>APPROVALS · PROMOTION<br>DELIVERY VS DEPLOYMENT</div>
+<div class="vpipe">
+<div class="vnode purp"><span class="dot"></span><img src="../../assets/icons/general/package.svg" alt="Artifact"><b>ARTIFACT</b><small>tested digest arrives</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../../assets/icons/deployment/rocket.svg" alt="Staging"><b>STAGING</b><small>auto-deploy + verify</small></div><div class="vline"></div>
+<div class="vnode amber"><span class="dot"></span><b>◌ APPROVAL</b><small>human decides</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../../assets/icons/deployment/rocket.svg" alt="Production"><b>PRODUCTION</b><small>same digest, live users</small></div>
+</div>
+<div class="foot"><span>01 / 05 · DELIVERY &amp; ENVIRONMENTS</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s05-p2" class="page opener">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 05<hr><h2>Delivery</h2>Releasable · Gated · Promoted</div>
+<div class="bignum">05</div>
+<div class="ctitle">DELIVERY</div>
+<p class="lede">Picking up from <em>Artifacts</em>, where the digest was frozen — we now move <em>that exact artifact</em> through staging to production.</p>
+<h3 class="sec"><span class="n">01 /</span> Delivery vs Deployment</h3>
+<table class="cmp"><tr><th></th><th>Delivery</th><th>Deployment</th></tr>
+<tr><td>After CI</td><td>Releasable, auto-staged</td><td>Shipped to production</td></tr>
+<tr><td>Prod deploy</td><td>A human/policy decision</td><td>Automatic</td></tr>
+<tr><td>Motto</td><td>"Could ship anytime"</td><td>"Ships every time"</td></tr>
+<tr><td>Risk control</td><td>Approval gate</td><td>Progressive delivery + rollback</td></tr></table>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 05</span><span>02 / 05</span></div>
+</div>
+<div id="s05-p3" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 05<hr><h2>Flow</h2>Stages · Gate · Deploy</div>
+<h3 class="sec"><span class="n">02 /</span> How Delivery Executes</h3>
+<div class="vflow">
+<div class="fnode"><img src="../../assets/icons/general/package.svg" alt="Artifact"><b>REGISTRY</b><small>digest pushed</small></div><div class="farrow">↓</div>
+<div class="fnode"><img src="../../assets/icons/deployment/rocket.svg" alt="Staging"><b>STAGING</b><small>auto + smoke tests</small></div><div class="farrow">↓</div>
+<div class="fnode gate"><b>◌ APPROVAL</b><small>checks green + time window + owner sign-off</small></div><div class="farrow">↓</div>
+<div class="fnode"><img src="../../assets/icons/deployment/rocket.svg" alt="Production"><b>PRODUCTION</b><small>same digest + env config</small></div>
+</div>
+<h3 class="sec"><span class="n">03 /</span> Promotion as Code</h3>
+<div class="terminal"><span class="c"># Helm installs the chart with the tested tag — same digest, env values</span>
+deploy-staging:    <span class="c"># auto on main</span>
+&nbsp;&nbsp;environment: staging
+deploy-production: <span class="c"># manual gate</span>
+&nbsp;&nbsp;needs: [deploy-staging, smoke-tests]
+&nbsp;&nbsp;when: manual</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 05</span><span>03 / 05</span></div>
+</div>
+<div id="s05-p4" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 05<hr><h2>Environments</h2>Lanes · Failures · Rules</div>
+<h3 class="sec"><span class="n">04 /</span> Staging vs Production</h3>
+<div class="lane stg"><div class="lt"><span>STAGING</span><span>DEPLOY → VERIFY</span></div><div class="lb">rehearse · sanitized data · auto · smaller scale</div></div>
+<div class="lane prd"><div class="lt"><span>PRODUCTION</span><span>APPROVE → DEPLOY</span></div><div class="lb">serve users · real data · gated · full scale</div></div>
+<ul class="tight"><li>Config drift → same chart/manifests, env-only values.</li><li>Approval bottleneck → policy gates for low-risk paths.</li><li>Rebuild instead of digest → pin digests end-to-end.</li></ul>
+<div class="kv"><b>RULES —</b> same digest staging → production · config from env vars/secrets, never code · small batches + feature flags · every deploy observable and reversible.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 05</span><span>04 / 05</span></div>
+</div>
+<div id="s05-p5" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 05<hr><h2>Check &amp; Handoff</h2>Knowledge · Next</div>
+<h3 class="sec"><span class="n">05 /</span> Interview Check</h3>
+<div class="qa"><span class="qq">Q:</span> Delivery vs Deployment in one sentence each?<br><span class="aa">A:</span> Delivery: production-ready behind an approval. Deployment: validated changes released automatically.</div>
+<div class="qa"><span class="qq">Q:</span> Design an approval gate.<br><span class="aa">A:</span> Who/what approves, on what signal: checks green + time window + owner sign-off.</div>
+<h3 class="sec"><span class="n">06 /</span> Handoff</h3>
+<p class="body">The release is live — now it must be watched. Continue in <b>PDF 06 · Observability &amp; Feedback</b>, where production signals close the loop back to the developer.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">07-continuous-delivery/continuous-delivery.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 05</span><span>05 / 05</span></div>
+</div>
+<div id="s05-p6" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; ENGINEERING MANUAL &nbsp;·&nbsp; PDF 24</div>
+<h1>CONTINUOUS<br><span>DEPLOYMENT</span></h1>
+<div class="sub">Every green change ships — by itself</div>
+<div class="tri">FULL AUTOMATION · KILL CRITERIA<br>PROGRESSIVE DELIVERY · TRUST</div>
+<div class="foot"><span>01 / 04 · FREEDOM BOUGHT WITH RIGOR</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s05-p7" class="page opener">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 24<hr><h2>Automation</h2>Prereqs · Kill Criteria</div>
+<div class="bignum">24</div>
+<div class="ctitle">AUTO-SHIP</div>
+<p class="lede">Picking up from <em>Continuous Delivery</em>, where a human approved production — here <em>the pipeline approves itself</em>. Delivery asks "could we ship?"; Deployment ships.</p>
+<h3 class="sec"><span class="n">01 /</span> Non-Negotiable Prerequisites</h3>
+<div class="vflow">
+<div class="fnode"><img src="../../assets/icons/ci-cd/workflow.svg" alt="Automate"><b>FULL AUTOMATION</b><small>zero manual steps anywhere</small></div><div class="farrow">↓</div>
+<div class="fnode"><img src="../../assets/icons/deployment/rocket.svg" alt="Progressive"><b>PROGRESSIVE DELIVERY</b><small>canary or flags on every release</small></div><div class="farrow">↓</div>
+<div class="fnode"><img src="../../assets/icons/monitoring/activity.svg" alt="Kill"><b>KILL CRITERIA</b><small>auto-halt on burn, p99, KPI drop</small></div>
+</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 24</span><span>02 / 04</span></div>
+</div>
+<div id="s05-p8" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 24<hr><h2>Choice</h2>Delivery vs Deployment</div>
+<h3 class="sec"><span class="n">02 /</span> When Each</h3>
+<ul class="tight"><li><b>Delivery</b> (human gate) — regulated industries, data migrations, coordinated launches, teams still building gate maturity.</li><li><b>Deployment</b> (no gate) — SaaS with progressive delivery, strong SLOs, practiced rollback, trunk discipline. Start low-risk, expand as confidence compounds.</li></ul>
+<h3 class="sec"><span class="n">03 /</span> Failure Modes</h3>
+<div class="kv"><b>AUTOMATING A FLAKY PIPELINE</b> ships bugs at machine speed — fix gates first, automate second. <b>NO KILL CRITERIA</b> lets bad releases reach 100% "successfully". <b>NAIVE MIGRATIONS</b> corrupt state — expand-contract only. <b>ON-CALL DISTRUST</b> re-adds manual gates — boring, practiced rollbacks build the confidence.</div>
+<div class="qa"><span class="qq">Q:</span> The one-gate difference?<br><span class="aa">A:</span> Delivery stages with human approval; Deployment promotes automatically. Same pipeline, different trust.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 24</span><span>03 / 04</span></div>
+</div>
+<div id="s05-p9" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 24<hr><h2>Handoff</h2>Next · Source</div>
+<h3 class="sec"><span class="n">04 /</span> Handoff</h3>
+<p class="body">Auto-shipping needs somewhere safe to land. Continue in <b>PDF 25 · Environments &amp; Release</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">08-continuous-deployment/continuous-deployment.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 24</span><span>04 / 04</span></div>
+</div>
+<div id="s05-p10" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; ENGINEERING MANUAL &nbsp;·&nbsp; PDF 25</div>
+<h1>ENVIRONMENTS<br><span>&amp; RELEASE</span></h1>
+<div class="sub">Same binary, different config, explicit path</div>
+<div class="tri">TOPOLOGY · CONFIG VS CODE<br>RELEASE TRAINS · HOTFIX LANE</div>
+<div class="foot"><span>01 / 04 · ZONES WITH GOVERNANCE</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s05-p11" class="page opener">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 25<hr><h2>Topology</h2>Zones · Config</div>
+<div class="bignum">25</div>
+<div class="ctitle">LANDING ZONES</div>
+<p class="lede">Picking up from <em>Continuous Deployment</em>, where automation needed safe landing zones — here is <em>how those zones are built and governed</em>.</p>
+<h3 class="sec"><span class="n">01 /</span> Environment Topology</h3>
+<table class="cmp"><tr><th>Env</th><th>Purpose</th><th>Data</th></tr>
+<tr><td>Dev</td><td>Individual velocity</td><td>Fake / local</td></tr>
+<tr><td>Preview (per-PR)</td><td>Review the actual change</td><td>Sanitized snapshot</td></tr>
+<tr><td>Staging</td><td>Prod rehearsal</td><td>Sanitized prod-like</td></tr>
+<tr><td>Production</td><td>Real users</td><td>Real</td></tr></table>
+<p class="body">Preview environments are the highest-leverage addition: reviewers click the change instead of imagining it.</p>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 25</span><span>02 / 04</span></div>
+</div>
+<div id="s05-p12" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 25<hr><h2>Release</h2>Config · Trains</div>
+<h3 class="sec"><span class="n">02 /</span> Config vs Code</h3>
+<div class="kv"><b>RULE —</b> the artifact never changes between environments; everything else is config (env vars, secret stores, config maps). A staging-vs-production behavioral diff must be explainable by <b>config diff alone</b> — never by "we built it differently".</div>
+<h3 class="sec"><span class="n">03 /</span> Trains &amp; Paths</h3>
+<ul class="tight"><li><b>Release train</b> — scheduled departures; green + approved rides, the rest waits. Predictable for stakeholders, calming for on-call.</li><li><b>Promotion path</b> — dev → preview → staging → production; skipping environments precedes incidents.</li><li><b>Hotfix lane</b> — documented fast path (fewer approvals, same checks) for fires; used rarely, reviewed always.</li><li>Snowflake envs, real prod data in staging, and config baked into images are the three classic failures.</li></ul>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 25</span><span>03 / 04</span></div>
+</div>
+<div id="s05-p13" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 25<hr><h2>Handoff</h2>Next · Source</div>
+<h3 class="sec"><span class="n">04 /</span> Handoff</h3>
+<p class="body">Zones built and governed — now lock down the supply chain running through them. Continue in <b>PDF 26 · CI/CD Security</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">09-environments-and-release/environments-release.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 25</span><span>04 / 04</span></div>
+</div>
+<div id="s05-p14" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; ENGINEERING MANUAL &nbsp;·&nbsp; PDF 20</div>
+<h1>DEPLOYMENT<br><span>STRATEGIES</span></h1>
+<div class="sub">Same artifact, different traffic shape</div>
+<div class="tri">RECREATE · ROLLING<br>BLUE/GREEN · CANARY<br>FEATURE FLAGS</div>
+<div class="vpipe">
+<div class="vnode"><span class="dot"></span><img src="../../assets/icons/deployment/rocket.svg" alt="Rolling"><b>ROLLING</b><small>replace gradually</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../../assets/icons/deployment/rocket.svg" alt="BlueGreen"><b>BLUE/GREEN</b><small>switch traffic</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../../assets/icons/deployment/rocket.svg" alt="Canary"><b>CANARY</b><small>5% → 50% → 100%</small></div><div class="vline"></div>
+<div class="vnode g"><span class="dot"></span><img src="../../assets/icons/ci-cd/workflow.svg" alt="Flags"><b>FLAGS</b><small>toggle code paths</small></div>
+</div>
+<div class="foot"><span>01 / 04 · BLAST RADIUS CONTROL</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s05-p15" class="page opener">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 20<hr><h2>Shapes</h2>Compare · Choose</div>
+<div class="bignum">20</div>
+<div class="ctitle">STRATEGIES</div>
+<p class="lede">Picking up from <em>Delivery</em>, where the approval gate opened — we now choose <em>how the new version meets real traffic</em>.</p>
+<h3 class="sec"><span class="n">01 /</span> Five Shapes</h3>
+<table class="cmp"><tr><th>Strategy</th><th>Downtime</th><th>Rollback</th></tr>
+<tr><td>Recreate</td><td>Yes</td><td>Slow (redeploy)</td></tr>
+<tr><td>Rolling</td><td>No</td><td>Gradual</td></tr>
+<tr><td>Blue/Green</td><td>No</td><td>Instant flip-back</td></tr>
+<tr><td>Canary</td><td>No</td><td>Fast drain</td></tr>
+<tr><td>Feature Flags</td><td>No</td><td>Instant toggle</td></tr></table>
+<div class="kv"><b>PICK BY BLAST RADIUS —</b> rolling by default · blue/green when no partial fleet may run bad code · canary for production proof · flags for kill-switches. Stateful data? Expand-contract migrations first — strategy alone can't save schemas.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 20</span><span>02 / 04</span></div>
+</div>
+<div id="s05-p16" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 20<hr><h2>Mechanics</h2>How · Failures · Rules</div>
+<h3 class="sec"><span class="n">02 /</span> How Each Moves Traffic</h3>
+<div class="vflow">
+<div class="fnode"><img src="../../assets/icons/deployment/rocket.svg" alt="Rolling"><b>ROLLING</b><small>batch by batch, probes gate each step</small></div><div class="farrow">↓</div>
+<div class="fnode"><img src="../../assets/icons/deployment/rocket.svg" alt="BlueGreen"><b>BLUE/GREEN</b><small>validate Green, flip router, keep Blue warm</small></div><div class="farrow">↓</div>
+<div class="fnode"><img src="../../assets/icons/monitoring/activity.svg" alt="Canary"><b>CANARY 5→100%</b><small>golden signals decide; halt on burn</small></div>
+</div>
+<h3 class="sec"><span class="n">03 /</span> Failure Modes</h3>
+<ul class="tight"><li>Rolling without probes → bad version reaches 100% "successfully".</li><li>Blue/Green sharing mutable state → Green writes what Blue can't read; keep schemas backward-compatible.</li><li>Canary without version labels → blended metrics lie.</li><li>Flag sprawl → untestable combinations; every flag gets an owner + expiry.</li></ul>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 20</span><span>03 / 04</span></div>
+</div>
+<div id="s05-p17" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 20<hr><h2>Check &amp; Handoff</h2>Interview · Next</div>
+<h3 class="sec"><span class="n">04 /</span> Interview Check</h3>
+<div class="qa"><span class="qq">Q:</span> Canary vs Rolling?<br><span class="aa">A:</span> Rolling replaces capacity; canary tests a hypothesis on a subset with explicit success criteria.</div>
+<div class="qa"><span class="qq">Q:</span> Why do stateful systems break strategy thinking?<br><span class="aa">A:</span> Traffic shapes can't fix data: migrations must be expand-contract and backward-compatible first.</div>
+<h3 class="sec"><span class="n">05 /</span> Handoff</h3>
+<p class="body">Strategy chosen — but canary is blind without signals. Continue in <b>PDF 06 · Observability &amp; Feedback</b>, whose golden signals gate every progressive rollout.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">10-deployment-strategies/deployment-strategies.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 20</span><span>04 / 04</span></div>
+</div>
+<div id="s05-p18" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; ENGINEERING MANUAL &nbsp;·&nbsp; PDF 27</div>
+<h1>ROLLBACK<br><span>&amp; RECOVERY</span></h1>
+<div class="sub">A feature, not an apology</div>
+<div class="tri">PER-STRATEGY MOVES · OLD DIGESTS<br>DRILLS · BLAMELESS POSTMORTEMS</div>
+<div class="foot"><span>01 / 04 · PRACTICED UNTIL BORING</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s05-p19" class="page opener">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 27<hr><h2>Moves</h2>Strategy · Decision</div>
+<div class="bignum">27</div>
+<div class="ctitle">RECOVERY</div>
+<p class="lede">Picking up from <em>CI/CD Security</em> — defenses still fail, so <em>recovery must be engineered with the same rigor as release</em>.</p>
+<h3 class="sec"><span class="n">01 /</span> Rollback per Strategy</h3>
+<table class="cmp"><tr><th>Strategy</th><th>Rollback move</th><th>Time</th></tr>
+<tr><td>Rolling</td><td>Batch-by-batch undo</td><td>Minutes</td></tr>
+<tr><td>Blue/Green</td><td>Flip router to Blue</td><td>Seconds</td></tr>
+<tr><td>Canary</td><td>Drain canary to stable</td><td>Seconds–min</td></tr>
+<tr><td>Flag</td><td>Toggle off</td><td>Instant</td></tr>
+<tr><td>Recreate</td><td>Redeploy previous digest</td><td>Slowest</td></tr></table>
+<p class="body">Rollback deploys a <b>previous known-good digest</b> — never a fresh build. Fresh builds add untested variables to a fire.</p>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 27</span><span>02 / 04</span></div>
+</div>
+<div id="s05-p20" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 27<hr><h2>Practice</h2>Drills · Postmortems</div>
+<h3 class="sec"><span class="n">02 /</span> Rollback vs Forward-Fix</h3>
+<div class="kv"><b>ROLLBACK —</b> cause unknown, blast radius growing, budget burning, fix uncertain. Default for Sev1. <b>FORWARD-FIX —</b> cause known, fix tiny and verified, rollback risky (migrations applied). <b>DECIDER —</b> on-call with pre-agreed thresholds, not a committee.</div>
+<h3 class="sec"><span class="n">03 /</span> Drills &amp; Postmortems</h3>
+<ul class="tight"><li>Game days in staging; rollback rehearsals quarterly until MTTR is measured, not guessed.</li><li>Jenkins recovery: restore <span class="mono">JENKINS_HOME</span> backup, replay smoke pipeline.</li><li>Blameless postmortems where every action item becomes a test, check, alert, or runbook — or it recurs.</li></ul>
+<div class="qa"><span class="qq">Q:</span> Why old digests, never fresh builds?<br><span class="aa">A:</span> The old digest is proven in production. A fresh build is an untested variable during an incident.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 27</span><span>03 / 04</span></div>
+</div>
+<div id="s05-p21" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 27<hr><h2>Handoff</h2>Next · Source</div>
+<h3 class="sec"><span class="n">04 /</span> Handoff</h3>
+<p class="body">Recovery engineered — the concept arc is complete. Return to the <b>Topic Index</b> for labs and reference.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">14-reliability-and-recovery/rollback-recovery.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 27</span><span>04 / 04</span></div>
+</div>
+<div id="s05-p22" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; ENGINEERING MANUAL &nbsp;·&nbsp; PDF 06</div>
+<h1>OBSERVABILITY<br><span>&amp; FEEDBACK</span></h1>
+<div class="sub">Deploy → Observe → Learn → Fix</div>
+<div class="tri">LOGS · METRICS · TRACES<br>GOLDEN SIGNALS · SLOS<br>DORA · POSTMORTEMS</div>
+<div class="vpipe">
+<div class="vnode"><span class="dot"></span><img src="../../assets/icons/deployment/rocket.svg" alt="Deploy"><b>DEPLOY</b><small>version-labeled release</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../../assets/icons/monitoring/activity.svg" alt="Observe"><b>OBSERVE</b><small>logs · metrics · traces</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../../assets/icons/security/shield.svg" alt="Alert"><b>ALERT</b><small>symptom, not noise</small></div><div class="vline"></div>
+<div class="vnode g"><span class="dot"></span><img src="../../assets/icons/git/git.svg" alt="Fix"><b>FIX FORWARD</b><small>new commit, new test</small></div>
+</div>
+<div class="foot"><span>01 / 05 · FEEDBACK &amp; OPERATIONS</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s05-p23" class="page opener">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 06<hr><h2>Feedback</h2>Signals · Loop · Learning</div>
+<div class="bignum">06</div>
+<div class="ctitle">FEEDBACK</div>
+<p class="lede">Picking up from <em>Delivery</em>, where the digest reached production — we now watch <em>what it does there</em> and feed the lessons back.</p>
+<h3 class="sec"><span class="n">01 /</span> Vocabulary</h3>
+<table class="cmp"><tr><th>Signal</th><th>Consumer</th><th>Action</th></tr>
+<tr><td>PR checks</td><td>Developer</td><td>Fix before merge</td></tr>
+<tr><td>Staging smoke</td><td>Team</td><td>Block promotion</td></tr>
+<tr><td>Error-rate alert</td><td>On-call</td><td>Roll back or forward-fix</td></tr>
+<tr><td>MTTR trends</td><td>Leads</td><td>Improve pipeline</td></tr></table>
+<p class="body">Without feedback, deployment is a cliff. The loop <span class="mono">deploy → observe → learn → fix</span> is what makes CI/CD self-improving instead of merely automated.</p>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 06</span><span>02 / 05</span></div>
+</div>
+<div id="s05-p24" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 06<hr><h2>Mechanism</h2>Signals · Alerts · DORA</div>
+<h3 class="sec"><span class="n">02 /</span> How the Loop Runs</h3>
+<ul class="tight"><li>Every deploy labeled (version/SHA) so signals correlate with the change.</li><li>Dashboards track golden signals — latency, traffic, errors, saturation — plus business KPIs.</li><li>Alerts fire on symptom: error-budget burn, p99 spike. Never on every deploy.</li><li>Incident → revert or forward-fix → postmortem feeds new gates (test, scan, approval).</li></ul>
+<h3 class="sec"><span class="n">03 /</span> The DORA Four</h3>
+<div class="kv"><b>TRACK —</b> deploy frequency · lead time for changes · change-fail rate · MTTR (mean time to recovery). DORA = DevOps Research &amp; Assessment. SLOs (e.g. 99.9%) turn these into alerting budgets.</div>
+<div class="kv"><b>SLI → SLO → BUDGET —</b> indicator (success ratio, p99) → objective (99.9%/30d) → error budget (allowed failures). Alert on <b>burn rate</b>: fast burn pages, slow burn tickets. Keep 3–5 SLOs per service, each with owner + runbook.</div>
+<div class="terminal">v1.4.2 deploys <span class="c">(SHA-labeled)</span><br>error rate 0.2% → 3.1% in 10 min <span class="r">(ALERT)</span><br>rollback to v1.4.1 <span class="g">(4 min, MTTR stops)</span><br>postmortem → new PR test <span class="g">(class of bug can't recur)</span></div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 06</span><span>03 / 05</span></div>
+</div>
+<div id="s05-p25" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 06<hr><h2>Discipline</h2>Failures · Rules · Check</div>
+<h3 class="sec"><span class="n">04 /</span> Failure Modes</h3>
+<ul class="tight"><li>Alert fatigue (noisy thresholds) → alerts ignored; fix with SLO-based, actionable alerts.</li><li>Unlabeled deploys → can't tell which version broke prod; version-label everything.</li><li>Postmortems without pipeline changes → repeat incidents; every action item lands as a test, check, or runbook.</li></ul>
+<div class="kv"><b>RULES —</b> structured logs (<span class="mono">key=value</span>) + trace IDs + version labels from day one · PR results in minutes, anomalies in minutes, trends weekly.</div>
+<div class="qa"><span class="qq">Q:</span> Logs vs metrics vs traces — one use each?<br><span class="aa">A:</span> Logs: what happened. Metrics: how much/how fast. Traces: where a request traveled.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 06</span><span>04 / 05</span></div>
+</div>
+<div id="s05-p26" class="page">
+<div class="phead"><span class="ch">CI/CD Systems</span> &nbsp; Chapter 06<hr><h2>Handoff</h2>Next · Source</div>
+<h3 class="sec"><span class="n">05 /</span> Handoff</h3>
+<p class="body">The loop is closed conceptually — now see it implemented. Continue in <b>PDF 07 · Jenkins Domain</b>, where these generic concepts become controllers, agents, and Jenkinsfiles.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">13-observability-and-feedback/observability-feedback.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 06</span><span>05 / 05</span></div>
+</div>
+</body>
+</html>

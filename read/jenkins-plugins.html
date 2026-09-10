@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jenkins Plugins — CICD BY Nabawy</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap');
+:root{--bg:#0B0D10;--bg2:#12151a;--card:#12151a;--ink:#ededed;--mut:#a0a0a0;--line:rgba(255,255,255,.1);--line-soft:rgba(255,255,255,.07);--acc:#18E299;--acc-soft:rgba(24,226,153,.12);--brand:#18E299;--warn:#c37d0d;--red:#d45656;--shadow:rgba(0,0,0,.4) 0px 2px 4px;--shadow-btn:rgba(0,0,0,.4) 0px 1px 2px;--shadow-lift:rgba(0,0,0,.5) 0px 12px 28px -8px;--radius:12px;--mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+[data-theme=light]{--bg:#ffffff;--bg2:#fafafa;--card:#ffffff;--ink:#0d0d0d;--mut:#666666;--line:rgba(0,0,0,.07);--line-soft:rgba(0,0,0,.05);--acc:#0b9b68;--acc-soft:#d4fae8;--brand:#18E299;--warn:#c37d0d;--red:#d45656;--shadow:rgba(0,0,0,.03) 0px 2px 4px;--shadow-btn:rgba(0,0,0,.06) 0px 1px 2px;--shadow-lift:rgba(0,0,0,.1) 0px 12px 28px -8px;--radius:12px;--mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+/* category accents */
+.book[data-cat="CI/CD"]{--cat:#5B8DEF}.book[data-cat="Build"]{--cat:#F5A524}.book[data-cat="Testing"]{--cat:#2ECC71}.book[data-cat="Security"]{--cat:#E5484D}.book[data-cat="Reliability"]{--cat:#9B7BF0}.book[data-cat="Jenkins"]{--cat:#22B8CF}.book[data-cat="Delivery"]{--cat:#F472B6}.book[data-cat="GitHub"]{--cat:#94A3B8}.book[data-cat="Platforms"]{--cat:#F97316}.book[data-cat="Labs"]{--cat:#EAB308}.book[data-cat="Reference"]{--cat:#64748B}.book[data-cat="Series"]{--cat:#18E299}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--ink);text-decoration:none}
+a:hover{color:var(--acc)}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 32px}
+header.top{position:sticky;top:0;background:var(--bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line-soft);z-index:20}
+header.top .wrap{display:flex;align-items:center;gap:16px;padding:12px 32px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:600;letter-spacing:-.01em;font-size:16px;white-space:nowrap}
+.logo svg{flex:none}
+.logo span{color:var(--ink)}
+.search{flex:1;display:flex;max-width:480px;margin:0 auto}
+.search input{flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.12);color:var(--ink);border-radius:9999px;padding:8px 16px;font-size:14px;outline:none}
+[data-theme=light] .search input{border-color:rgba(0,0,0,.08)}
+.search input:focus{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}
+.search input::placeholder{color:#888}
+.search kbd{font-family:var(--mono);font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin-left:-44px;align-self:center;pointer-events:none}
+.btn{background:var(--bg);border:1px solid rgba(255,255,255,.14);color:var(--ink);border-radius:9999px;padding:6px 14px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+[data-theme=light] .btn{border-color:rgba(0,0,0,.08)}
+.btn:hover{opacity:.75}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.hero{padding:64px 24px 44px;text-align:center;position:relative;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(24,226,153,.16),transparent 70%)}
+.hero .eyebrow{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--brand);background:rgba(24,226,153,.14);border-radius:9999px;padding:5px 14px;margin-bottom:20px}
+[data-theme=light] .hero .eyebrow{color:#0fa76e;background:#d4fae8}
+.hero h1{font-size:clamp(38px,5vw,60px);font-weight:600;letter-spacing:-1px;line-height:1.15;max-width:800px;margin:0 auto}
+.hero h1 span{color:var(--ink)}
+.hero p{color:var(--mut);font-size:18px;line-height:1.5;max-width:640px;margin:16px auto 0}
+.hero .stats{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+.hero .stats span{font-size:13px;font-weight:500;color:var(--mut);background:var(--card);border:1px solid var(--line-soft);border-radius:9999px;padding:5px 14px}
+.hero .stats b{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:12px}
+#resume{position:fixed;right:20px;bottom:20px;z-index:40;background:var(--ink);color:var(--bg);border-radius:9999px;padding:10px 22px;font-size:14px;font-weight:500;box-shadow:var(--shadow-lift);max-width:min(420px,80vw);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#resume:hover{opacity:.85;color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{position:relative;background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);padding:22px 24px 24px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--shadow);overflow:hidden;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--cat,var(--brand))}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:var(--line)}
+.card .num{font-family:var(--mono);color:var(--mut);font-size:10px;font-weight:500;letter-spacing:.6px;text-transform:uppercase}
+.card h3{font-size:19px;font-weight:600;letter-spacing:-.2px;line-height:1.3}
+.card h3 a{color:var(--ink)}
+.card p{font-size:13.5px;color:var(--mut);flex:1;line-height:1.55}
+.dif{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink)}
+.dif i{font-style:normal;width:8px;height:8px;border-radius:50%;background:var(--cat,var(--brand));flex:none}
+.meta-line{font-size:12px;color:var(--mut)}
+.card a.read{margin-top:8px;align-self:flex-start;background:transparent;border:1px solid var(--cat,var(--brand));color:var(--cat,var(--brand));font-weight:500;font-size:14px;border-radius:9999px;padding:7px 22px}
+.card a.read:hover{background:var(--cat,var(--brand));color:#0B0D10;opacity:1}
+[data-theme=light] .card a.read:hover{color:#fff}
+.card a.read::after{content:" →"}
+.prog{height:5px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.prog b{display:block;height:100%;background:var(--brand)}
+h2.sec{font-size:24px;font-weight:500;letter-spacing:-.24px;margin:64px 0 4px;color:var(--ink)}
+.sub{color:var(--mut);font-size:16px;margin-bottom:24px}
+footer{border-top:1px solid var(--line-soft);margin-top:64px;color:var(--mut);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);padding:30px;text-align:center;color:var(--mut)}
+/* collection: shelf rows */
+.collectlabel{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:56px 0 20px}
+.jumpnav{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 30px}
+.jumpnav a{font-size:13px;font-weight:500;background:var(--card);border:1px solid var(--line-soft);border-radius:9999px;padding:5px 14px;color:var(--mut)}
+.jumpnav a:hover{border-color:var(--line);color:var(--ink)}
+.morewrap{text-align:center;margin:8px 0 40px}
+.shelf{margin:0 0 52px}
+.shelf-head{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}
+.shelf-head h2{font-size:20px;font-weight:700;letter-spacing:-.2px;padding-bottom:8px;border-bottom:2px solid var(--cat,var(--brand))}
+.shelf-head span{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;color:var(--mut)}
+.shelf-head .arrows{margin-left:auto;display:flex;gap:8px}
+.shelf-head .arrows button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:15px;cursor:pointer;line-height:1}
+.shelf-head .arrows button:hover{border-color:var(--brand);color:var(--brand)}
+.rail{display:flex;gap:20px;overflow-x:auto;padding:4px 24px 16px 2px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.rail .card{flex:0 0 272px;scroll-snap-align:start}
+.rail .card p{-webkit-line-clamp:3}
+.cores-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:1024px){.cores-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.cores-grid{grid-template-columns:1fr}}
+/* reader */
+.rlayout{display:flex;max-width:1320px;margin:0 auto;min-height:100vh}
+aside.toc{width:300px;flex:none;border-right:1px solid var(--line-soft);padding:24px 16px;position:sticky;top:57px;height:calc(100vh - 57px);overflow:auto}
+aside.toc h4{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
+aside.toc a{display:block;font-size:14px;font-weight:500;color:var(--mut);text-decoration:none;padding:7px 12px;border-radius:8px;border-left:2px solid transparent;line-height:1.45}
+aside.toc a:hover{color:var(--ink);background:var(--bg2)}
+aside.toc a.cur{background:var(--acc-soft);color:var(--brand);font-weight:600;border-left-color:var(--brand)}
+[data-theme=light] aside.toc a.cur{color:#0fa76e}
+main.read{flex:1;min-width:0;padding:32px 32px 90px}
+.readbody{margin:0 auto;max-width:820px}
+.readbody .page{width:auto !important;min-height:0 !important;margin:0 auto 22px !important;padding:26px !important;border-radius:14px;scroll-margin-top:80px}
+.readbody .page.cover{align-items:flex-start !important}
+.readbody pre,.readbody .terminal{position:relative;overflow-x:auto;max-width:100%;scrollbar-width:thin}
+.readbody code,.readbody .mono{overflow-wrap:anywhere}
+.copybar{display:flex;justify-content:flex-end;margin:0 0 8px}
+.copybtn{position:static;background:var(--bg);border:1px solid rgba(255,255,255,.14);color:var(--ink);border-radius:9999px;font-size:12px;font-weight:500;padding:4px 12px;cursor:pointer}
+[data-theme=light] .copybtn{border-color:rgba(0,0,0,.08)}
+.copybtn:hover{opacity:.7}
+mark{background:var(--acc-soft);color:var(--ink);border-radius:3px;padding:0 2px}
+.chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:32px}
+.chapnav a{flex:1;background:var(--card);border:1px solid var(--line-soft);border-radius:16px;padding:16px 24px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;box-shadow:var(--shadow)}
+.chapnav a:hover{border-color:var(--line)}
+.chapnav a small{display:block;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.chapnav a.r{text-align:right}
+.drawer{display:none;position:fixed;inset:0;z-index:70}
+.drawer.open{display:block}
+.drawer .scrim{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.drawer .panel{position:absolute;right:0;top:0;bottom:0;width:320px;background:var(--card);border-left:1px solid var(--line-soft);padding:24px 32px;overflow:auto;box-shadow:var(--shadow)}
+.drawer .panel h3{font-size:20px;font-weight:600;letter-spacing:-.2px;margin-bottom:4px}
+.setrow{margin:20px 0}
+.setrow h5{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin-bottom:10px}
+.setrow .opts{display:flex;gap:8px;flex-wrap:wrap}
+.setrow .opts .btn.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.tocbtn{display:none}
+.pdflink{display:inline-block;margin-top:12px;background:var(--ink);color:var(--bg);border-radius:9999px;padding:8px 24px;text-decoration:none;font-size:14px;font-weight:500;box-shadow:var(--shadow-btn)}
+.pdflink:hover{opacity:.85;color:var(--bg)}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:13.5px;min-width:0}
+.crumbs .here{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.crumbs .sep{color:var(--mut)}
+@media(max-width:900px){aside.toc{position:fixed;left:0;top:0;bottom:0;background:var(--card);z-index:60;transform:translateX(-105%);transition:transform .2s;height:100vh}
+aside.toc.open{transform:none}
+.tocbtn{display:inline-block}
+main.read{padding:20px 14px 90px}
+.crumbs .here{max-width:140px}
+header.top .wrap{flex-wrap:wrap}
+.search{max-width:none;flex-basis:100%;order:5}
+.hero{padding:36px 0 6px}
+.chapnav{flex-direction:column}
+.readbody table,.readbody .terminal,table.gloss{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.drawer .panel{width:min(320px,88vw)}}
+@media(max-width:600px){
+.wrap{padding:16px 14px}
+.grid{grid-template-columns:1fr}
+.hero .stats{gap:6px}
+main.read{padding:16px 10px 90px}
+.readbody .page{padding:18px !important}
+.btn{min-height:40px}
+.readbody pre,.readbody .terminal{font-size:11px}}
+@media print{header.top,aside.toc,.drawer,.chapnav,.copybtn,.settingsbar{display:none !important}
+main.read{padding:0}.readbody{max-width:none}}
+table.gloss{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0}
+table.gloss td,table.gloss th{border:1px solid var(--line);padding:9px 11px;text-align:left}
+table.gloss th{background:var(--bg2)}
+</style>
+<style>
+.readbody{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--panel-2:#1a201d;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61;--blue:#4387ff;--amber:#d99a24;--red:#d94b4b;--artifact:#8b6cff}
+*{box-sizing:border-box;margin:0;padding:0}
+.readbody{font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{.readbody{}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.terminal,table.cmp,.qa,.kv,.callout{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:48px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--red)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--text-muted);margin-bottom:26px;line-height:2}
+.vpipe{display:flex;flex-direction:column;margin:6px 0 26px}
+.vnode{display:flex;align-items:center;gap:12px}
+.vnode .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 10px rgba(0,184,124,.55);flex:none}
+.vnode img{width:22px;height:22px;flex:none}
+.vnode b{font-size:12px;letter-spacing:2px}
+.vnode small{font-size:10px;color:var(--text-muted)}
+.vline{width:2px;height:16px;background:#2c3531;margin-left:6px}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:32px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+.terminal{background:var(--panel);color:var(--text-light);border-radius:8px;padding:16px 18px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;line-height:1.7;margin:12px 0;white-space:pre-wrap}
+.terminal .c{color:var(--text-muted)}
+table.cmp{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+table.cmp th{background:var(--panel);color:var(--text-light);font-size:10.5px;letter-spacing:1px;padding:9px 10px;text-align:left}
+table.cmp td{border:1px solid var(--line);padding:9px 10px;background:var(--white);line-height:1.55}
+table.cmp td:first-child{font-weight:700;background:#eef0ee}
+.callout{border-left:3px solid var(--red);background:var(--white);padding:12px 14px;margin:12px 0}
+.callout h4{font-size:11px;letter-spacing:2px;color:var(--red);margin-bottom:5px}
+.callout p{font-size:13px;line-height:1.6}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+/* reader overrides */
+.readbody .page:not(.cover){width:auto !important;min-height:0 !important;margin:0 auto !important;padding:10px 26px !important;background:transparent !important;border-radius:0;page-break-after:auto !important;overflow:visible}
+.readbody .page.cover{align-items:flex-start !important;border-radius:16px;padding:48px 34px !important;margin:0 auto 30px !important}
+.readbody .page.opener .bignum{margin-top:30px}
+[data-theme=dark] .readbody{--paper:#10161d;--white:#151c25;--ink:#e6edf3;--muted:#8b949e;--line:#26303d;--panel:#0a0e14;--text-light:#e6edf3}
+</style>
+</head>
+<body data-book="jenkins-plugins">
+<header class="top"><div class="wrap">
+<button class="btn tocbtn" id="tocbtn">☰ Contents</button>
+<nav class="crumbs"><a class="logo" href="../index.html" style="color:inherit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="5" cy="12" r="2.6" stroke="#18E299" stroke-width="2"/><circle cx="19" cy="6" r="2.6" stroke="#18E299" stroke-width="2"/><circle cx="19" cy="18" r="2.6" stroke="#18E299" stroke-width="2"/><path d="M7.6 12h5.2m0 0-2.6-2.6m2.6 2.6-2.6 2.6M13.4 7.4l2.8-1M13.4 16.6l2.8 1" stroke="#18E299" stroke-width="2" stroke-linecap="round"/></svg>CICD<span> BY Nabawy</span></a>
+<span class="sep">/</span>
+<span class="here">Jenkins Plugins</span></nav>
+<div class="search"><input id="q" type="search" placeholder="Search in book…"><kbd>⌘K</kbd></div>
+<span id="qcount" style="font-size:12px;color:var(--mut)"></span>
+<button class="btn" id="setbtn" aria-label="Reading settings">⚙ A⁺</button>
+</div>
+<div class="prog" style="height:3px;background:var(--line)"><b id="pbar" style="display:block;height:100%;width:0;background:var(--acc)"></b></div>
+</header>
+<div class="rlayout">
+<aside class="toc"><h4>CONTENTS · 4 PAGES · 5 SECTIONS</h4><a href="#pp1">Cover — JENKINSPLUGINS</a><a href="#pp2">01 / Essential Set</a><a href="#pp3">02 / Pin &amp;amp; Stage Upgrades</a><a href="#pp3">03 / Failure Modes</a><a href="#pp4">04 / Handoff</a>
+<div style="margin-top:14px"><a href="../pdf/pdf-14-jenkins-plugins.html">⭳ Open print HTML</a></div>
+</aside>
+<main class="read"><div class="readbody">
+<div id="p1" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; ENGINEERING MANUAL &nbsp;·&nbsp; PDF 14</div>
+<h1>JENKINS<br><span>PLUGINS</span></h1>
+<div class="sub">How Jenkins grows — pin everything</div>
+<div class="tri">ESSENTIAL SET · PINNING<br>STAGING UPGRADES<br>PRUNE THE REST</div>
+<div class="vpipe">
+<div class="vnode"><span class="dot"></span><img src="../assets/icons/git/git.svg" alt="Git"><b>GIT + BRANCH SOURCE</b><small>checkout · discovery</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../assets/icons/docker/docker.svg" alt="Docker"><b>DOCKER / K8S</b><small>ephemeral agents</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../assets/icons/security/shield.svg" alt="Credentials"><b>CREDENTIALS</b><small>store + bindings</small></div><div class="vline"></div>
+<div class="vnode"><span class="dot"></span><img src="../assets/icons/testing/flask-conical.svg" alt="Tests"><b>JUNIT / WARNINGS</b><small>gates + reports</small></div>
+</div>
+<div class="foot"><span>01 / 04 · EXTENSIBILITY</span><span class="sig">Nabawy</span></div>
+</div><div id="p2" class="page opener">
+
+<div class="bignum">14</div>
+<div class="ctitle">PLUGINS</div>
+<p class="lede">Picking up from <em>Credentials</em> — whose bindings are themselves a plugin — we now survey <em>the ecosystem that makes Jenkins Jenkins</em>.</p>
+<h3 class="sec"><span class="n">01 /</span> Essential Set</h3>
+<table class="cmp"><tr><th>Plugin</th><th>Why</th></tr>
+<tr><td>Pipeline (workflow-*)</td><td>Declarative/Scripted, stage/steps</td></tr>
+<tr><td>Git + Branch Source</td><td>Checkout, multibranch, webhooks</td></tr>
+<tr><td>Credentials (+Binding)</td><td>Secret storage + withCredentials</td></tr>
+<tr><td>Docker / Kubernetes</td><td>Ephemeral build agents</td></tr>
+<tr><td>JUnit / Warnings NG</td><td>Test reports, analysis gates</td></tr></table>
+
+</div><div id="p3" class="page">
+
+<h3 class="sec"><span class="n">02 /</span> Pin &amp; Stage Upgrades</h3>
+<div class="terminal"><span class="c"># plugins.txt — pinned, version-controlled</span>
+git:5.2.1
+workflow-aggregator:596.v8c21c963d92d
+credentials-binding:681.v346b_f30f5d80
+docker-workflow:572.v950f58993843</div>
+<div class="kv"><b>RULES —</b> upgrade in a staging Jenkins first (plugin updates, not core, cause most outages) · remove unused plugins (attack surface + startup + conflicts).</div>
+<h3 class="sec"><span class="n">03 /</span> Failure Modes</h3>
+<ul class="tight"><li>Update-all Friday → Monday outage; update deliberately with a snapshot.</li><li><span class="mono">No such DSL method</span> → owning plugin not installed.</li><li>Core/plugin skew → cryptic startup failures; keep LTS + compatible set.</li></ul>
+<div class="callout"><h4>FRIDAY RULE</h4><p>Never bulk-update plugins before a weekend. Deliberate upgrades with a rollback snapshot, or Monday owns you.</p></div>
+
+</div><div id="p4" class="page">
+
+<h3 class="sec"><span class="n">04 /</span> Handoff</h3>
+<p class="body">Plugins installed — now connect the trigger wire. Continue in <b>PDF 15 · Jenkins Webhooks</b>, where pushes become builds in seconds.</p>
+
+
+</div>
+<div class="chapnav"><a id="prevbook" href="jenkins-credentials.html"><small>← PREVIOUS</small>Jenkins Credentials</a><a id="nextbook" class="r" href="jenkins-webhooks.html"><small>NEXT →</small>Jenkins Webhooks</a></div>
+</div></main>
+</div>
+<div class="drawer" id="drawer"><div class="scrim"></div><div class="panel">
+<h3>Reading settings</h3>
+<div class="setrow"><h5>THEME</h5><div class="opts">
+<button class="btn" data-k="theme" data-set="light" onclick="setOpt('theme','light')">Light</button>
+<button class="btn" data-k="theme" data-set="dark" onclick="setOpt('theme','dark')">Dark</button></div></div>
+<div class="setrow"><h5>TEXT SIZE</h5><div class="opts">
+<button class="btn" data-k="fs" data-set="0.9" onclick="setOpt('fs',0.9)">A−</button>
+<button class="btn" data-k="fs" data-set="1" onclick="setOpt('fs',1)">A</button>
+<button class="btn" data-k="fs" data-set="1.2" onclick="setOpt('fs',1.2)">A+</button>
+<button class="btn" data-k="fs" data-set="1.4" onclick="setOpt('fs',1.4)">A++</button></div></div>
+<div class="setrow"><h5>READING WIDTH</h5><div class="opts">
+<button class="btn" data-k="width" data-set="680px" onclick="setOpt('width','680px')">Narrow</button>
+<button class="btn" data-k="width" data-set="820px" onclick="setOpt('width','820px')">Comfortable</button>
+<button class="btn" data-k="width" data-set="1020px" onclick="setOpt('width','1020px')">Wide</button></div></div>
+<div class="setrow"><h5>SHORTCUTS</h5><p style="font-size:12px;color:var(--mut)">Ctrl+K search · T contents · ←/→ prev/next book · Esc close</p></div>
+</div></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function getP(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}}
+function setP(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+const BID=document.body.dataset.book,PREF='cicdlib:pref',PKEY='cicdlib:prog:'+BID;
+const pref=Object.assign({theme:'dark',fs:1,width:'820px'},getP(PREF,{}));
+function applyPref(){document.documentElement.dataset.theme=pref.theme==='light'?'light':'dark';
+  document.querySelector('.readbody').style.zoom=pref.fs;
+  document.querySelector('.readbody').style.setProperty('max-width',pref.width);
+  $$('.setrow .opts .btn').forEach(b=>b.classList.toggle('on',b.dataset.set===undefined?'':String(pref[b.dataset.k])===b.dataset.set));
+  setP(PREF,pref);}
+function setOpt(k,v){pref[k]=v;applyPref()}
+$$('.terminal').forEach(t=>{const bar=document.createElement('div');bar.className='copybar';const b=document.createElement('button');b.className='copybtn';b.textContent='Copy';b.onclick=()=>{navigator.clipboard.writeText(t.innerText).then(()=>{b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',1200)})};bar.appendChild(b);t.before(bar)});
+function tocUpdate(){const secs=$$('.readbody .page');let cur=secs[0]&&secs[0].id;
+  secs.forEach(s=>{if(s.getBoundingClientRect().top<160)cur=s.id});
+  $$('aside.toc a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')==='#'+cur));}
+window.addEventListener('scroll',()=>{tocUpdate();
+  const h=document.documentElement,p=Math.min(100,Math.round(100*(h.scrollTop)/(h.scrollHeight-h.clientHeight||1)));
+  setP(PKEY,{pct:p,ts:Date.now()});const bar=$('#pbar');if(bar)bar.style.width=p+'%';},{passive:true});
+function findBook(q){$$('.readbody mark').forEach(m=>{m.replaceWith(document.createTextNode(m.textContent))});if(!q)return 0;
+  let n=0;const walker=document.createTreeWalker(document.querySelector('.readbody'),NodeFilter.SHOW_TEXT);
+  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+  nodes.forEach(nd=>{const i=nd.textContent.toLowerCase().indexOf(q.toLowerCase());if(i<0)return;
+    if(nd.parentElement.closest('.terminal,script,style'))return;
+    const r=document.createRange();r.setStart(nd,i);r.setEnd(nd,i+q.length);
+    const m=document.createElement('mark');r.surroundContents(m);n++;});
+  const f=document.querySelector('.readbody mark');if(f)f.scrollIntoView({block:'center'});return n;}
+$('#q').addEventListener('keydown',e=>{if(e.key==='Enter'){const n=findBook(e.target.value);$('#qcount').textContent=n?n+' match'+(n>1?'es':''):'no matches'}});
+$('#q').addEventListener('input',e=>{if(!e.target.value)findBook('')});
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#q').focus()}
+  if(e.key==='Escape'){$('#drawer').classList.remove('open');$('aside.toc').classList.remove('open')}
+  if(e.key.toLowerCase()==='t'&&document.activeElement.tagName!=='INPUT'){$('aside.toc').classList.toggle('open')}
+  if(e.key==='ArrowRight'&&document.activeElement.tagName!=='INPUT'){const n=$('#nextbook');if(n)location.href=n.href}
+  if(e.key==='ArrowLeft'&&document.activeElement.tagName!=='INPUT'){const p=$('#prevbook');if(p)location.href=p.href}});
+$('#setbtn').onclick=()=>$('#drawer').classList.add('open');
+$('#drawer .scrim').onclick=()=>$('#drawer').classList.remove('open');
+$('#tocbtn').onclick=()=>$('aside.toc').classList.toggle('open');
+$$('aside.toc a').forEach(a=>a.onclick=()=>{if(innerWidth<=900)$('aside.toc').classList.remove('open')});
+applyPref();tocUpdate();
+</script>
+</body>
+</html>

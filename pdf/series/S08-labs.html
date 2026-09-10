@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD Engineering — Series S08: Hands-On Labs</title>
+<style>
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.terminal,.qa,.kv{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.step{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.7}
+.step h4{font-size:13px;letter-spacing:1px;margin-bottom:4px}
+.step h4 .tag{color:var(--accent-dark)}
+.terminal{background:#101413;color:#d6e2dc;border-radius:8px;padding:12px 14px;font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace;font-size:11.5px;line-height:1.7;margin:10px 0;overflow-x:auto;white-space:pre}
+.terminal .c{color:#8b9a94}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.terminal,.step{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.step{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.7}
+.step h4{font-size:13px;letter-spacing:1px;margin-bottom:4px}
+.step h4 .tag{color:var(--accent-dark)}
+.terminal{background:#101413;color:#d6e2dc;border-radius:8px;padding:12px 14px;font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace;font-size:11.5px;line-height:1.7;margin:10px 0;overflow-x:auto;white-space:pre}
+.terminal .c{color:#8b9a94}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.step,.kv{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.step{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.7}
+.step h4{font-size:13px;letter-spacing:1px;margin-bottom:4px}
+.step h4 .tag{color:var(--accent-dark)}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+
+
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.terminal{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:21px;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:14px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.terminal{background:#101413;color:#d6e2dc;border-radius:8px;padding:10px 14px;font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace;font-size:11px;line-height:1.7;margin:8px 0;overflow-x:auto;white-space:pre}
+.terminal .c{color:#8b9a94}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.vnode b,.fnode b{font-size:11px}.phead h2{font-size:18px}.step{font-size:12.5px}}
+</style>
+</head>
+<body>
+
+<div class="page cover">
+<div class="brand">CI/CD SYSTEMS · SERIES EDITION · S08</div>
+<h1>HANDS-ON<br>LABS</h1>
+<div class="sub">Nine labs: first pipeline to backup drill.</div>
+<div class="tri">PDF 28: LAB 01 FIRST PIPELINE<br>PDF 29: LAB 02 BUILD AND TEST<br>PDF 30: LAB 03 ARTIFACTS<br>PDF 31: LAB 04 DEPLOYMENT<br>PDF 32: LAB 05 ROLLBACK<br>+ 4 MORE</div>
+<div class="foot"><span>SERIES EDITION · 9 CHAPTERS</span><span class="sig">Nabawy</span></div>
+</div>
+
+<div class="page opener">
+<div class="phead"><span class="ch">Series Edition</span> &nbsp; S08<hr><h2>Contents</h2>Chapters</div>
+<div class="vflow">
+<div class="fnode"><b>PDF 28: Lab 01 First Pipeline</b><small>3 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 29: Lab 02 Build and Test</b><small>3 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 30: Lab 03 Artifacts</b><small>3 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 31: Lab 04 Deployment</b><small>3 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 32: Lab 05 Rollback</b><small>3 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 33: Lab 06 Jenkins Controller</b><small>3 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 34: Lab 07 Shared Library</b><small>3 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 35: Lab 08 Backup & Restore</b><small>3 pages</small></div><div class="farrow">↓</div><div class="fnode"><b>PDF 36: Command Cheatsheet</b><small>3 pages</small></div><div class="farrow">↓</div>
+</div>
+<div class="printnote">OMNIBUS — member chapters keep their original page numbers. Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>S08</span><span>02 / 29</span></div>
+</div>
+<div id="s08-p1" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; LABS &nbsp;·&nbsp; PDF 28</div>
+<h1>LAB 01<br><span>FIRST PIPELINE</span></h1>
+<div class="sub">Push → build → test → green check</div>
+<div class="tri">GITHUB ACTIONS · HOSTED RUNNER<br>STATUS CHECK · BRANCH PROTECTION</div>
+<div class="foot"><span>01 / 03 · THE SMALLEST CLOSED LOOP</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p2" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 01<hr><h2>Execute</h2>Workflow · Gate</div>
+<h3 class="sec"><span class="n">01 /</span> Add the Workflow</h3>
+<div class="terminal"><span class="c"># .github/workflows/ci.yml</span>
+name: ci
+on: { push, pull_request }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm test</div>
+<div class="step"><h4><span class="tag">EXPECT —</span> green run in Actions tab, green check on the PR.</h4>Push to a branch, open a PR. Trigger → runner → job → feedback: the smallest closed loop.</div>
+<h3 class="sec"><span class="n">02 /</span> Require the Check</h3>
+<div class="step"><h4><span class="tag">EXECUTE —</span> Settings → Branches → protect <span class="mono">main</span> → require <span class="mono">build</span>.</h4>Push a breaking change: the merge button blocks until green. An unenforced gate is decoration.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 01</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p3" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 01<hr><h2>Verify</h2>Checks · Next</div>
+<h3 class="sec"><span class="n">03 /</span> Verification</h3>
+<ul class="tight"><li>PR shows the green workflow check.</li><li>Merging without green is blocked.</li><li>Breaking the test turns the PR red.</li><li>Trouble: <span class="mono">npm ci</span> fails → commit the lockfile; long queues → shrink the job.</li></ul>
+<p class="body">Proved: triggers fire pipelines, runners execute jobs, checks gate merges. Next: <b>Lab 02 · Build and Test</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">16-labs/01-first-pipeline.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 01</span><span>03 / 03</span></div>
+</div>
+<div id="s08-p4" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; LABS &nbsp;·&nbsp; PDF 29</div>
+<h1>LAB 02<br><span>BUILD + TEST</span></h1>
+<div class="sub">DAG jobs, cached deps, hermetic proof</div>
+<div class="tri">NEEDS EDGES · LOCKFILE CACHE<br>LOCAL == CI · UNDER 10 MIN</div>
+<div class="foot"><span>01 / 03 · FAST, SEALED, ORDERED</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p5" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 02<hr><h2>Execute</h2>Split · Cache</div>
+<h3 class="sec"><span class="n">01 /</span> Split and Cache</h3>
+<div class="terminal">jobs:
+  build:  <span class="c"># npm ci, cached on lockfile</span>
+    runs-on: ubuntu-latest
+    steps: [...]
+  test:
+    needs: build  <span class="c"># the DAG edge</span>
+    runs-on: ubuntu-latest
+    steps: [..., npm test]</div>
+<div class="step"><h4><span class="tag">EXPECT —</span> two ordered jobs; reruns faster on warm npm cache.</h4><span class="mono">needs:</span> is the ordering edge; the lockfile-keyed cache is the hermetic speedup.</div>
+<h3 class="sec"><span class="n">02 /</span> Prove Hermeticity</h3>
+<div class="step"><h4><span class="tag">EXECUTE —</span> delete <span class="mono">node_modules</span>, run <span class="mono">npm ci &amp;&amp; npm test</span> locally.</h4>Identical pass/fail as CI: the runner builds what you built, no ambient-machine surprises.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 02</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p6" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 02<hr><h2>Verify</h2>Checks · Next</div>
+<h3 class="sec"><span class="n">03 /</span> Verification</h3>
+<ul class="tight"><li>Two jobs visible, ordered by <span class="mono">needs</span>.</li><li>Cache hit on rerun; local <span class="mono">npm ci</span> reproduces CI.</li><li>Trouble: cache never hits → lockfile untracked; wrong order → missing <span class="mono">needs:</span>.</li></ul>
+<p class="body">Proved: DAG ordering, hermetic installs, lockfile caching. Next: <b>Lab 03 · Artifacts</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">16-labs/02-build-and-test.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 02</span><span>03 / 03</span></div>
+</div>
+<div id="s08-p7" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; LABS &nbsp;·&nbsp; PDF 30</div>
+<h1>LAB 03<br><span>ARTIFACTS</span></h1>
+<div class="sub">Build once — tag SHA, push, SBOM</div>
+<div class="tri">GHCR · IMMUTABLE TAGS<br>SBOM · DIGEST IDENTITY</div>
+<div class="foot"><span>01 / 03 · ONE BUILD, EVERY ENVIRONMENT</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p8" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 03<hr><h2>Execute</h2>Image · SBOM</div>
+<h3 class="sec"><span class="n">01 /</span> Build Once, Tag SHA</h3>
+<div class="terminal">- uses: docker/login-action@v3
+  with: { registry: ghcr.io, ... }
+- uses: docker/metadata-action@v5
+  with:
+    images: ghcr.io/OWNER/APP
+    tags: type=sha,prefix=sha-
+- uses: docker/build-push-action@v6
+  with: { push: true }</div>
+<div class="step"><h4><span class="tag">EXPECT —</span> GHCR shows <span class="mono">sha-&lt;short&gt;</span>; logs print the digest.</h4>SHA = immutable identity; the digest is what every environment deploys — never <span class="mono">:latest</span>.</div>
+<h3 class="sec"><span class="n">02 /</span> Attach SBOM</h3>
+<div class="step"><h4><span class="tag">EXECUTE —</span> add <span class="mono">anchore/sbom-action@v0</span> after push.</h4>The ingredient list that makes the next CVE answerable in minutes.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 03</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p9" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 03<hr><h2>Verify</h2>Checks · Next</div>
+<h3 class="sec"><span class="n">03 /</span> Verification</h3>
+<ul class="tight"><li>GHCR holds an immutable SHA tag; same digest = same bytes.</li><li>SBOM artifact present.</li><li>Trouble: 403 on push → add <span class="mono">packages: write</span>.</li></ul>
+<p class="body">Proved: build-once identity, SHA discipline, SBOM habit. Next: <b>Lab 04 · Deployment</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">16-labs/03-artifacts.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 03</span><span>03 / 03</span></div>
+</div>
+<div id="s08-p10" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; LABS &nbsp;·&nbsp; PDF 31</div>
+<h1>LAB 04<br><span>DEPLOYMENT</span></h1>
+<div class="sub">Same digest, two environments, one gate</div>
+<div class="tri">STAGING AUTO · PROD APPROVAL<br>DIGEST PROMOTION</div>
+<div class="foot"><span>01 / 03 · RELEASABLE ALWAYS, DEPLOYED BY DECISION</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p11" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 04<hr><h2>Execute</h2>Staging · Gate</div>
+<h3 class="sec"><span class="n">01 /</span> Staging Auto-Deploys</h3>
+<div class="terminal">deploy-staging:
+  needs: image
+  environment: staging
+  runs-on: ubuntu-latest
+  steps:
+    - run: echo "deploy DIGEST to staging"</div>
+<div class="step"><h4><span class="tag">EXPECT —</span> every <span class="mono">main</span> merge deploys staging, no clicks.</h4>Safe to automate: users never see it.</div>
+<h3 class="sec"><span class="n">02 /</span> Production Needs a Human</h3>
+<div class="step"><h4><span class="tag">EXECUTE —</span> add <span class="mono">deploy-prod</span> with <span class="mono">environment: production</span> (required reviewer in Settings → Environments).</h4>Production waits; after approval it runs the <b>same digest</b>. This is Continuous Delivery's one gate.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 04</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p12" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 04<hr><h2>Verify</h2>Checks · Next</div>
+<h3 class="sec"><span class="n">03 /</span> Verification</h3>
+<ul class="tight"><li>Staging deploys on every merge; production blocks until approved.</li><li>Both ran the identical digest — pass digests explicitly, never tags.</li></ul>
+<p class="body">Proved: promotion paths, environment gates, digest discipline. Next: <b>Lab 05 · Rollback</b> — production breaks on purpose.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">16-labs/04-deployment.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 04</span><span>03 / 03</span></div>
+</div>
+<div id="s08-p13" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; LABS &nbsp;·&nbsp; PDF 32</div>
+<h1>LAB 05<br><span>ROLLBACK</span></h1>
+<div class="sub">Break production — recover in minutes</div>
+<div class="tri">OLD DIGESTS · TIMED RECOVERY<br>POSTMORTEM WITH TEETH</div>
+<div class="foot"><span>01 / 03 · RECOVERY, PRACTICED</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p14" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 05<hr><h2>Execute</h2>Incident · Recover</div>
+<h3 class="sec"><span class="n">01 /</span> Cause the Incident</h3>
+<div class="step"><h4><span class="tag">EXECUTE —</span> merge a change that passes tests but breaks visible output (wrong port, broken route). Promote to production.</h4>Green ≠ correct. This is why recovery is engineered, not improvised.</div>
+<h3 class="sec"><span class="n">02 /</span> Roll Back, Don't Rebuild</h3>
+<div class="step"><h4><span class="tag">EXECUTE —</span> redeploy the previous digest (re-run old <span class="mono">deploy-prod</span>). Time yourself.</h4>Old digests are proven in production; fresh builds add untested variables to a fire.</div>
+<h3 class="sec"><span class="n">03 /</span> Postmortem With Teeth</h3>
+<div class="kv"><b>WRITE —</b> timeline + root cause + <b>one action item that becomes a merged pipeline change</b> (new test, check, or alert). Postmortems without merged changes are diary entries.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 05</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p15" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 05<hr><h2>Verify</h2>Checks · Next</div>
+<h3 class="sec"><span class="n">04 /</span> Verification</h3>
+<ul class="tight"><li>Recovery time measured — aim minutes.</li><li>Previous digest redeployed, not a fresh build.</li><li>One preventive pipeline change merged; postmortem filed in <span class="mono">docs/postmortems/</span>.</li></ul>
+<p class="body">Proved: recovery as a practiced path. General labs complete — next: <b>Lab 06 · Jenkins Controller</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">16-labs/05-rollback.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 05</span><span>03 / 03</span></div>
+</div>
+<div id="s08-p16" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; LABS &nbsp;·&nbsp; PDF 33</div>
+<h1>LAB 06<br><span>JENKINS LIVE</span></h1>
+<div class="sub">Controller + agent in Compose, first pipeline</div>
+<div class="tri">DOCKER COMPOSE · INBOUND AGENT<br>THREE GREEN STAGES</div>
+<div class="foot"><span>01 / 03 · SCHEDULE HERE, EXECUTE THERE</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p17" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 06<hr><h2>Execute</h2>Agent · Pipeline</div>
+<h3 class="sec"><span class="n">01 /</span> Connect the Agent</h3>
+<div class="terminal">docker compose up -d
+docker exec jenkins cat \
+  /var/jenkins_home/secrets/initialAdminPassword</div>
+<div class="step"><h4><span class="tag">EXPECT —</span> node <span class="mono">agent-1</span> online, label <span class="mono">docker-agent</span>, 2–4 executors.</h4>Create the node in Manage Jenkins → Nodes, launch inbound with the secret. Controller schedules, agents execute.</div>
+<h3 class="sec"><span class="n">02 /</span> Run the Canonical Pipeline</h3>
+<div class="terminal">pipeline {
+  agent { label 'docker-agent' }
+  stages {
+    stage('Build') { steps { sh 'echo build' } }
+    stage('Test')  { steps { sh 'echo test' } }
+    stage('Deploy'){ steps { echo 'deploy' } }
+  }
+}</div>
+<div class="step"><h4><span class="tag">EXPECT —</span> three green boxes in Stage View, all on <span class="mono">agent-1</span>.</h4>Controller runs zero builds — no executors on <span class="mono">master</span>, ever, in prod.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 06</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p18" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 06<hr><h2>Verify</h2>Checks · Next</div>
+<h3 class="sec"><span class="n">03 /</span> Verification</h3>
+<ul class="tight"><li>Agent online, labeled, idle after the run.</li><li>Three green stages; controller executors at zero.</li><li>Trouble: agent offline → secret/URL wrong; use <span class="mono">http://jenkins:8080</span> in-Compose.</li></ul>
+<p class="body">Proved: the controller/agent split hands-on. Next: <b>Lab 07 · Shared Library</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">16-labs/06-jenkins-controller.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 06</span><span>03 / 03</span></div>
+</div>
+<div id="s08-p19" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; LABS &nbsp;·&nbsp; PDF 34</div>
+<h1>LAB 07<br><span>SHARED LIBRARY</span></h1>
+<div class="sub">One step defined — two pipelines consuming</div>
+<div class="tri">VARS/ · VERSION PIN<br>DRY WITH A SAFETY RAIL</div>
+<div class="foot"><span>01 / 03 · REUSE WITHOUT COPY-PASTE</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p20" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 07<hr><h2>Execute</h2>Register · Consume</div>
+<h3 class="sec"><span class="n">01 /</span> Register the Library</h3>
+<div class="terminal"><span class="c"># pipeline-library repo, vars/standardTest.groovy</span>
+def call(Map cfg = [:]) {
+  sh "${cfg.cmd ?: 'npm test'}"
+}</div>
+<div class="step"><h4><span class="tag">EXECUTE —</span> Manage Jenkins → System → Global Pipeline Libraries → add <span class="mono">my-lib</span>, version <span class="mono">main</span>.</h4>Versioned libraries are dependencies: pinned, reviewed, rollback-able.</div>
+<h3 class="sec"><span class="n">02 /</span> Consume From Two Pipelines</h3>
+<div class="terminal">@Library('my-lib') _
+pipeline {
+  agent { label 'docker-agent' }
+  stages {
+    stage('Test') {
+      steps { standardTest(cmd: 'npm test') }
+    }
+  }
+}</div>
+<div class="step"><h4><span class="tag">EXPECT —</span> both pipelines green on the shared step.</h4>One definition, N consumers — the DRY payoff, version pin as safety rail.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 07</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p21" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 07<hr><h2>Verify</h2>Checks · Next</div>
+<h3 class="sec"><span class="n">03 /</span> Verification</h3>
+<ul class="tight"><li>Breaking the library breaks both (proves sharing); reverting fixes both.</li><li>Library changes go through PR review on their own repo.</li><li>Trouble: not found → name/version mismatch; sandbox blocks → approve or restrict source.</li></ul>
+<p class="body">Proved: versioned pipeline reuse. Next: <b>Lab 08 · Backup &amp; Restore</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">16-labs/07-jenkins-shared-library.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 07</span><span>03 / 03</span></div>
+</div>
+<div id="s08-p22" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; LABS &nbsp;·&nbsp; PDF 35</div>
+<h1>LAB 08<br><span>BACKUP + RESTORE</span></h1>
+<div class="sub">Destroy the controller — bring it back</div>
+<div class="tri">OFFLINE SNAPSHOT · FULL WIPE<br>RESTORE · SMOKE REPLAY</div>
+<div class="foot"><span>01 / 03 · RECOVERY MEASURED, NOT ASSUMED</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p23" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 08<hr><h2>Execute</h2>Backup · Destroy</div>
+<h3 class="sec"><span class="n">01 /</span> Back Up Offline</h3>
+<div class="terminal">docker compose stop jenkins
+docker run --rm \
+  -v jenkins-lab_jenkins_home:/data \
+  -v "$PWD":/out alpine \
+  tar czf /out/jenkins-backup.tar.gz -C /data .
+docker compose start jenkins</div>
+<div class="step"><h4><span class="tag">WHY OFFLINE —</span> stopped controller = consistent snapshot; live copies risk half-written state.</h4>Record one job's build number + one credential ID — the restore proof.</div>
+<h3 class="sec"><span class="n">02 /</span> Destroy and Restore</h3>
+<div class="terminal">docker compose down -v   <span class="c"># everything, incl. volume</span>
+docker compose up -d     <span class="c"># fresh controller</span>
+docker compose stop jenkins
+docker run --rm \
+  -v jenkins-lab_jenkins_home:/data \
+  -v "$PWD":/in alpine \
+  tar xzf /in/jenkins-backup.tar.gz -C /data
+docker compose start jenkins</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 08</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p24" class="page">
+<div class="phead"><span class="ch">Labs</span> &nbsp; Lab 08<hr><h2>Verify</h2>Checks · Done</div>
+<h3 class="sec"><span class="n">03 /</span> Verification</h3>
+<ul class="tight"><li>Jobs, history, credentials, plugins all present — recorded build number matches.</li><li>Lab 06's smoke pipeline runs green on the restored controller.</li><li>Trouble: plugin drift → pin image digests; UID errors → <span class="mono">chown -R 1000:1000</span> the volume.</li></ul>
+<p class="body">Proved: disaster recovery measured against reality. Labs complete — return to the <b>Topic Index</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">16-labs/08-jenkins-backup-restore.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>LAB 08</span><span>03 / 03</span></div>
+</div>
+<div id="s08-p25" class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; REFERENCE &nbsp;·&nbsp; PDF 36</div>
+<h1>COMMAND<br><span>CHEATSHEET</span></h1>
+<div class="sub">Every lab command, grouped by tool</div>
+<div class="tri">GIT · NPM · DOCKER<br>JENKINS · ACTIONS SNIPPETS</div>
+<div class="foot"><span>01 / 03 · COPY-PASTE READY</span><span class="sig">Nabawy</span></div>
+</div>
+<div id="s08-p26" class="page">
+<div class="phead"><span class="ch">Reference</span> &nbsp; Cheatsheet<hr><h2>Commands</h2>Git · Build · Docker</div>
+<h3 class="sec"><span class="n">01 /</span> Git + npm</h3>
+<div class="terminal">git checkout -b feat/x
+git push -u origin feat/x
+gh pr create --fill
+npm ci              <span class="c"># lockfile-exact, CI only</span>
+npm test
+./gradlew build     <span class="c"># wrapper pins toolchain</span></div>
+<h3 class="sec"><span class="n">02 /</span> Docker / GHCR</h3>
+<div class="terminal">docker build -t ghcr.io/OWNER/APP:sha-SHORT .
+docker push ghcr.io/OWNER/APP:sha-SHORT
+docker pull ghcr.io/OWNER/APP:sha-SHORT</div>
+<h3 class="sec"><span class="n">03 /</span> Jenkins Compose</h3>
+<div class="terminal">docker compose up -d
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+docker compose stop jenkins    <span class="c"># before backup</span>
+docker compose down -v         <span class="c"># destroy everything</span></div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>REF</span><span>02 / 03</span></div>
+</div>
+<div id="s08-p27" class="page">
+<div class="phead"><span class="ch">Reference</span> &nbsp; Cheatsheet<hr><h2>Snippets</h2>Backup · Actions</div>
+<h3 class="sec"><span class="n">04 /</span> Jenkins Backup</h3>
+<div class="terminal">docker run --rm -v LAB_jenkins_home:/data \
+  -v "$PWD":/out alpine \
+  tar czf /out/jenkins-backup.tar.gz -C /data .</div>
+<h3 class="sec"><span class="n">05 /</span> Actions Snippets</h3>
+<div class="terminal">runs-on: ubuntu-latest
+needs: build                <span class="c"># DAG edge</span>
+permissions: { packages: write }
+environment: production     <span class="c"># approval gate</span></div>
+<p class="body">Full context lives in the linked chapters — this sheet is the memory aid, not the manual.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">17-reference/command-cheatsheet.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>REF</span><span>03 / 03</span></div>
+</div>
+</body>
+</html>

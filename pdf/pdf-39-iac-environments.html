@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD Engineering — PDF 39: IaC for Environments</title>
+<style>
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.terminal,.kv,.qa{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:26px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+.terminal{background:#101413;color:#d6e2dc;border-radius:8px;padding:12px 14px;font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace;font-size:11.5px;line-height:1.7;margin:10px 0;overflow-x:auto;white-space:pre}
+.terminal .c{color:#8b9a94}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.qa{background:var(--white);border:1px solid var(--line);padding:10px 14px;margin:8px 0;font-size:13px;line-height:1.65}
+.qa .qq{font-weight:700}.qa .aa{color:var(--accent-dark);font-weight:700}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}.terminal{font-size:10.5px}.phead h2{font-size:18px}}
+</style>
+</head>
+<body>
+
+<div class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; INFRASTRUCTURE &nbsp;·&nbsp; PDF 39</div>
+<h1>IAC FOR<br><span>ENVIRONMENTS</span></h1>
+<div class="sub">Clicked infrastructure is snowflake infrastructure</div>
+<div class="tri">MODULES ONCE · STATE PER ENV<br>PLAN-AS-REVIEW · DRIFT ALERTS</div>
+<div class="foot"><span>01 / 04 · ENV DIFF = INPUT DIFF</span><span class="sig">Nabawy</span></div>
+</div>
+
+<div class="page opener">
+<div class="phead"><span class="ch">Infrastructure</span> &nbsp; Chapter 39<hr><h2>Structure</h2>Modules · State</div>
+<div class="bignum">39</div>
+<div class="ctitle">DECLARED ZONES</div>
+<p class="lede">Picking up from <em>ArgoCD &amp; GitOps</em> — IaC declares <em>everything underneath the app</em>: VPCs, clusters, databases, DNS, IAM. Same modules, different inputs per environment.</p>
+<h3 class="sec"><span class="n">01 /</span> Structure That Scales</h3>
+<div class="terminal">envs/
+├── modules/    <span class="c"># vpc, cluster, db — written once</span>
+├── dev/        <span class="c"># small, short retention</span>
+├── staging/    <span class="c"># prod-shaped, sanitized data</span>
+└── prod/       <span class="c"># real sizes, approvals</span></div>
+<div class="kv"><b>STATE PER ENV —</b> one blast radius per state file, remote backend with locking. <b>MODULES PINNED —</b> floating sources are <span class="mono">:latest</span> with extra steps. <b>ENV DIFF = INPUT DIFF —</b> any other behavioral difference is a bug.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 39</span><span>02 / 04</span></div>
+</div>
+
+<div class="page">
+<div class="phead"><span class="ch">Infrastructure</span> &nbsp; Chapter 39<hr><h2>Pipeline</h2>Plan · Drift</div>
+<h3 class="sec"><span class="n">02 /</span> IaC in the Pipeline</h3>
+<ul class="tight"><li><span class="mono">plan</span> on every PR — the plan is the review.</li><li><span class="mono">apply</span> gated like any prod deploy (auto dev, approved prod).</li><li><b>Drift detection</b> nightly — the IaC equivalent of self-heal.</li><li>Preview envs: PR → Terraform workspace → ephemeral env → destroy on merge.</li></ul>
+<h3 class="sec"><span class="n">03 /</span> Failure Modes</h3>
+<div class="kv"><b>SHARED STATE</b> lets dev <span class="mono">apply</span> delete prod — separate states, separate credentials. <b>UNREVIEWED APPLY</b> = ClickOps with extra steps. <b>SECRETS IN STATE</b> — state is plaintext; encrypt backends, use external stores.</div>
+<div class="qa"><span class="qq">Q:</span> Staging behaves differently from prod — where do you look first?<br><span class="aa">A:</span> The env inputs diff. If inputs match, it's drift or an undeclared change — both are bugs.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 39</span><span>03 / 04</span></div>
+</div>
+
+<div class="page">
+<div class="phead"><span class="ch">Infrastructure</span> &nbsp; Chapter 39<hr><h2>Handoff</h2>Next · Source</div>
+<h3 class="sec"><span class="n">04 /</span> Handoff</h3>
+<p class="body">Infrastructure declared — the platform arc is complete. Return to the <b>Topic Index</b> for labs and reference.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">12-infrastructure-and-configuration/iac-environments.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 39</span><span>04 / 04</span></div>
+</div>
+
+</body>
+</html>

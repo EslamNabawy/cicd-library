@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossary — CICD BY Nabawy</title><style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap');
+:root{--bg:#0B0D10;--bg2:#12151a;--card:#12151a;--ink:#ededed;--mut:#a0a0a0;--line:rgba(255,255,255,.1);--line-soft:rgba(255,255,255,.07);--acc:#18E299;--acc-soft:rgba(24,226,153,.12);--brand:#18E299;--warn:#c37d0d;--red:#d45656;--shadow:rgba(0,0,0,.4) 0px 2px 4px;--shadow-btn:rgba(0,0,0,.4) 0px 1px 2px;--shadow-lift:rgba(0,0,0,.5) 0px 12px 28px -8px;--radius:12px;--mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+[data-theme=light]{--bg:#ffffff;--bg2:#fafafa;--card:#ffffff;--ink:#0d0d0d;--mut:#666666;--line:rgba(0,0,0,.07);--line-soft:rgba(0,0,0,.05);--acc:#0b9b68;--acc-soft:#d4fae8;--brand:#18E299;--warn:#c37d0d;--red:#d45656;--shadow:rgba(0,0,0,.03) 0px 2px 4px;--shadow-btn:rgba(0,0,0,.06) 0px 1px 2px;--shadow-lift:rgba(0,0,0,.1) 0px 12px 28px -8px;--radius:12px;--mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+/* category accents */
+.book[data-cat="CI/CD"]{--cat:#5B8DEF}.book[data-cat="Build"]{--cat:#F5A524}.book[data-cat="Testing"]{--cat:#2ECC71}.book[data-cat="Security"]{--cat:#E5484D}.book[data-cat="Reliability"]{--cat:#9B7BF0}.book[data-cat="Jenkins"]{--cat:#22B8CF}.book[data-cat="Delivery"]{--cat:#F472B6}.book[data-cat="GitHub"]{--cat:#94A3B8}.book[data-cat="Platforms"]{--cat:#F97316}.book[data-cat="Labs"]{--cat:#EAB308}.book[data-cat="Reference"]{--cat:#64748B}.book[data-cat="Series"]{--cat:#18E299}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--ink);text-decoration:none}
+a:hover{color:var(--acc)}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 32px}
+header.top{position:sticky;top:0;background:var(--bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line-soft);z-index:20}
+header.top .wrap{display:flex;align-items:center;gap:16px;padding:12px 32px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:600;letter-spacing:-.01em;font-size:16px;white-space:nowrap}
+.logo svg{flex:none}
+.logo span{color:var(--ink)}
+.search{flex:1;display:flex;max-width:480px;margin:0 auto}
+.search input{flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.12);color:var(--ink);border-radius:9999px;padding:8px 16px;font-size:14px;outline:none}
+[data-theme=light] .search input{border-color:rgba(0,0,0,.08)}
+.search input:focus{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}
+.search input::placeholder{color:#888}
+.search kbd{font-family:var(--mono);font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin-left:-44px;align-self:center;pointer-events:none}
+.btn{background:var(--bg);border:1px solid rgba(255,255,255,.14);color:var(--ink);border-radius:9999px;padding:6px 14px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+[data-theme=light] .btn{border-color:rgba(0,0,0,.08)}
+.btn:hover{opacity:.75}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.hero{padding:64px 24px 44px;text-align:center;position:relative;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(24,226,153,.16),transparent 70%)}
+.hero .eyebrow{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--brand);background:rgba(24,226,153,.14);border-radius:9999px;padding:5px 14px;margin-bottom:20px}
+[data-theme=light] .hero .eyebrow{color:#0fa76e;background:#d4fae8}
+.hero h1{font-size:clamp(38px,5vw,60px);font-weight:600;letter-spacing:-1px;line-height:1.15;max-width:800px;margin:0 auto}
+.hero h1 span{color:var(--ink)}
+.hero p{color:var(--mut);font-size:18px;line-height:1.5;max-width:640px;margin:16px auto 0}
+.hero .stats{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+.hero .stats span{font-size:13px;font-weight:500;color:var(--mut);background:var(--card);border:1px solid var(--line-soft);border-radius:9999px;padding:5px 14px}
+.hero .stats b{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:12px}
+#resume{position:fixed;right:20px;bottom:20px;z-index:40;background:var(--ink);color:var(--bg);border-radius:9999px;padding:10px 22px;font-size:14px;font-weight:500;box-shadow:var(--shadow-lift);max-width:min(420px,80vw);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#resume:hover{opacity:.85;color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{position:relative;background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);padding:22px 24px 24px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--shadow);overflow:hidden;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--cat,var(--brand))}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:var(--line)}
+.card .num{font-family:var(--mono);color:var(--mut);font-size:10px;font-weight:500;letter-spacing:.6px;text-transform:uppercase}
+.card h3{font-size:19px;font-weight:600;letter-spacing:-.2px;line-height:1.3}
+.card h3 a{color:var(--ink)}
+.card p{font-size:13.5px;color:var(--mut);flex:1;line-height:1.55}
+.dif{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink)}
+.dif i{font-style:normal;width:8px;height:8px;border-radius:50%;background:var(--cat,var(--brand));flex:none}
+.meta-line{font-size:12px;color:var(--mut)}
+.card a.read{margin-top:8px;align-self:flex-start;background:transparent;border:1px solid var(--cat,var(--brand));color:var(--cat,var(--brand));font-weight:500;font-size:14px;border-radius:9999px;padding:7px 22px}
+.card a.read:hover{background:var(--cat,var(--brand));color:#0B0D10;opacity:1}
+[data-theme=light] .card a.read:hover{color:#fff}
+.card a.read::after{content:" →"}
+.prog{height:5px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.prog b{display:block;height:100%;background:var(--brand)}
+h2.sec{font-size:24px;font-weight:500;letter-spacing:-.24px;margin:64px 0 4px;color:var(--ink)}
+.sub{color:var(--mut);font-size:16px;margin-bottom:24px}
+footer{border-top:1px solid var(--line-soft);margin-top:64px;color:var(--mut);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);padding:30px;text-align:center;color:var(--mut)}
+/* collection: shelf rows */
+.collectlabel{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:56px 0 20px}
+.jumpnav{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 30px}
+.jumpnav a{font-size:13px;font-weight:500;background:var(--card);border:1px solid var(--line-soft);border-radius:9999px;padding:5px 14px;color:var(--mut)}
+.jumpnav a:hover{border-color:var(--line);color:var(--ink)}
+.morewrap{text-align:center;margin:8px 0 40px}
+.shelf{margin:0 0 52px}
+.shelf-head{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}
+.shelf-head h2{font-size:20px;font-weight:700;letter-spacing:-.2px;padding-bottom:8px;border-bottom:2px solid var(--cat,var(--brand))}
+.shelf-head span{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;color:var(--mut)}
+.shelf-head .arrows{margin-left:auto;display:flex;gap:8px}
+.shelf-head .arrows button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:15px;cursor:pointer;line-height:1}
+.shelf-head .arrows button:hover{border-color:var(--brand);color:var(--brand)}
+.rail{display:flex;gap:20px;overflow-x:auto;padding:4px 24px 16px 2px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.rail .card{flex:0 0 272px;scroll-snap-align:start}
+.rail .card p{-webkit-line-clamp:3}
+.cores-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:1024px){.cores-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.cores-grid{grid-template-columns:1fr}}
+/* reader */
+.rlayout{display:flex;max-width:1320px;margin:0 auto;min-height:100vh}
+aside.toc{width:300px;flex:none;border-right:1px solid var(--line-soft);padding:24px 16px;position:sticky;top:57px;height:calc(100vh - 57px);overflow:auto}
+aside.toc h4{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
+aside.toc a{display:block;font-size:14px;font-weight:500;color:var(--mut);text-decoration:none;padding:7px 12px;border-radius:8px;border-left:2px solid transparent;line-height:1.45}
+aside.toc a:hover{color:var(--ink);background:var(--bg2)}
+aside.toc a.cur{background:var(--acc-soft);color:var(--brand);font-weight:600;border-left-color:var(--brand)}
+[data-theme=light] aside.toc a.cur{color:#0fa76e}
+main.read{flex:1;min-width:0;padding:32px 32px 90px}
+.readbody{margin:0 auto;max-width:820px}
+.readbody .page{width:auto !important;min-height:0 !important;margin:0 auto 22px !important;padding:26px !important;border-radius:14px;scroll-margin-top:80px}
+.readbody .page.cover{align-items:flex-start !important}
+.readbody pre,.readbody .terminal{position:relative;overflow-x:auto;max-width:100%;scrollbar-width:thin}
+.readbody code,.readbody .mono{overflow-wrap:anywhere}
+.copybar{display:flex;justify-content:flex-end;margin:0 0 8px}
+.copybtn{position:static;background:var(--bg);border:1px solid rgba(255,255,255,.14);color:var(--ink);border-radius:9999px;font-size:12px;font-weight:500;padding:4px 12px;cursor:pointer}
+[data-theme=light] .copybtn{border-color:rgba(0,0,0,.08)}
+.copybtn:hover{opacity:.7}
+mark{background:var(--acc-soft);color:var(--ink);border-radius:3px;padding:0 2px}
+.chapnav{display:flex;justify-content:space-between;gap:12px;margin-top:32px}
+.chapnav a{flex:1;background:var(--card);border:1px solid var(--line-soft);border-radius:16px;padding:16px 24px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;box-shadow:var(--shadow)}
+.chapnav a:hover{border-color:var(--line)}
+.chapnav a small{display:block;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.chapnav a.r{text-align:right}
+.drawer{display:none;position:fixed;inset:0;z-index:70}
+.drawer.open{display:block}
+.drawer .scrim{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.drawer .panel{position:absolute;right:0;top:0;bottom:0;width:320px;background:var(--card);border-left:1px solid var(--line-soft);padding:24px 32px;overflow:auto;box-shadow:var(--shadow)}
+.drawer .panel h3{font-size:20px;font-weight:600;letter-spacing:-.2px;margin-bottom:4px}
+.setrow{margin:20px 0}
+.setrow h5{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin-bottom:10px}
+.setrow .opts{display:flex;gap:8px;flex-wrap:wrap}
+.setrow .opts .btn.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.tocbtn{display:none}
+.pdflink{display:inline-block;margin-top:12px;background:var(--ink);color:var(--bg);border-radius:9999px;padding:8px 24px;text-decoration:none;font-size:14px;font-weight:500;box-shadow:var(--shadow-btn)}
+.pdflink:hover{opacity:.85;color:var(--bg)}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:13.5px;min-width:0}
+.crumbs .here{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.crumbs .sep{color:var(--mut)}
+@media(max-width:900px){aside.toc{position:fixed;left:0;top:0;bottom:0;background:var(--card);z-index:60;transform:translateX(-105%);transition:transform .2s;height:100vh}
+aside.toc.open{transform:none}
+.tocbtn{display:inline-block}
+main.read{padding:20px 14px 90px}
+.crumbs .here{max-width:140px}
+header.top .wrap{flex-wrap:wrap}
+.search{max-width:none;flex-basis:100%;order:5}
+.hero{padding:36px 0 6px}
+.chapnav{flex-direction:column}
+.readbody table,.readbody .terminal,table.gloss{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.drawer .panel{width:min(320px,88vw)}}
+@media(max-width:600px){
+.wrap{padding:16px 14px}
+.grid{grid-template-columns:1fr}
+.hero .stats{gap:6px}
+main.read{padding:16px 10px 90px}
+.readbody .page{padding:18px !important}
+.btn{min-height:40px}
+.readbody pre,.readbody .terminal{font-size:11px}}
+@media print{header.top,aside.toc,.drawer,.chapnav,.copybtn,.settingsbar{display:none !important}
+main.read{padding:0}.readbody{max-width:none}}
+table.gloss{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0}
+table.gloss td,table.gloss th{border:1px solid var(--line);padding:9px 11px;text-align:left}
+table.gloss th{background:var(--bg2)}
+</style></head>
+<body>
+<header class="top"><div class="wrap"><a class="logo" href="index.html" style="text-decoration:none;color:inherit"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="5" cy="12" r="2.6" stroke="#18E299" stroke-width="2"/><circle cx="19" cy="6" r="2.6" stroke="#18E299" stroke-width="2"/><circle cx="19" cy="18" r="2.6" stroke="#18E299" stroke-width="2"/><path d="M7.6 12h5.2m0 0-2.6-2.6m2.6 2.6-2.6 2.6M13.4 7.4l2.8-1M13.4 16.6l2.8 1" stroke="#18E299" stroke-width="2" stroke-linecap="round"/></svg>CICD<span> BY Nabawy</span></a>
+<div class="search"><input id="q" type="search" placeholder="Filter terms…"></div></div></header>
+<div class="wrap"><h2 class="sec">Glossary</h2><p class="sub">49 terms · shared by books, reader and search</p>
+<table class="gloss"><tr><th>Term</th><th>Definition</th><th>Topic</th></tr><tr><td><b>Artifact</b></td><td>Versioned output produced by a build (e.g. Docker image, jar, zip)</td><td>[Artifact Management](05-artifacts-and-packaging/artifact-management.md)</td></tr><tr><td><b>Approval</b></td><td>Human or policy gate before promotion to an environment</td><td>[Continuous Delivery](07-continuous-delivery/continuous-delivery.md)</td></tr><tr><td><b>Blue/Green Deployment</b></td><td>Two identical environments, traffic switched from blue to green</td><td>[Deployment Strategies](10-deployment-strategies/deployment-strategies.md)</td></tr><tr><td><b>Branch</b></td><td>Independent line of development in Git</td><td>[Git, Branching &amp; Pull Requests](01-source-control/git-branching-pull-requests.md)</td></tr><tr><td><b>Build</b></td><td>Compiling/bundling source into a runnable artifact</td><td>[CI/CD Pipelines](06-ci-cd-pipelines/pipelines.md)</td></tr><tr><td><b>Canary Deployment</b></td><td>Release to a small subset first, expand on success</td><td>Planned: Deployment Strategies</td></tr><tr><td><b>CD</b></td><td>Continuous Delivery / Continuous Deployment</td><td>[CI/CD Overview](00-foundations/cicd-overview.md)</td></tr><tr><td><b>CI</b></td><td>Continuous Integration: frequent merges verified by automated build+test</td><td>[CI/CD Overview](00-foundations/cicd-overview.md)</td></tr><tr><td><b>CI Trigger</b></td><td>Event that starts a pipeline (push, PR, schedule, manual)</td><td>[Git, Branching &amp; Pull Requests](01-source-control/git-branching-pull-requests.md)</td></tr><tr><td><b>Continuous Delivery</b></td><td>Every good change is releasable; deployment is a decision</td><td>[Continuous Delivery](07-continuous-delivery/continuous-delivery.md)</td></tr><tr><td><b>Continuous Deployment</b></td><td>Every good change reaches production automatically</td><td>[Continuous Delivery](07-continuous-delivery/continuous-delivery.md)</td></tr><tr><td><b>Canary Deployment</b></td><td>Release to a small subset first, expand on success</td><td>[Deployment Strategies](10-deployment-strategies/deployment-strategies.md)</td></tr><tr><td><b>Contract Test</b></td><td>Verifies API compatibility between provider and consumer services</td><td>[Testing Strategy](04-testing/testing-strategy.md)</td></tr><tr><td><b>Deployment</b></td><td>Installing/running a release in an environment</td><td>[Continuous Delivery](07-continuous-delivery/continuous-delivery.md)</td></tr><tr><td><b>DORA</b></td><td>DevOps Research &amp; Assessment; four delivery signals (deploy frequency, lead time, change-fail rate, MTTR)</td><td>[Observability &amp; Feedback](13-observability-and-feedback/observability-feedback.md)</td></tr><tr><td><b>Environment</b></td><td>Target runtime context (staging, production)</td><td>[Continuous Delivery](07-continuous-delivery/continuous-delivery.md)</td></tr><tr><td><b>Expand-Contract</b></td><td>Migration pattern: add nullable → migrate → enforce; safe both directions</td><td>[Deployment Strategies](10-deployment-strategies/deployment-strategies.md)</td></tr><tr><td><b>GitOps</b></td><td>Git as desired state; in-cluster operator pulls reality toward it</td><td>[ArgoCD &amp; GitOps](15-platforms-and-tools/argocd-gitops.md)</td></tr><tr><td><b>Game Day</b></td><td>Planned failure injection in staging to practice recovery</td><td>[Rollback &amp; Recovery](14-reliability-and-recovery/rollback-recovery.md)</td></tr><tr><td><b>Merge Queue</b></td><td>Serializes merges onto latest green main with re-verification</td><td>[Continuous Integration](02-continuous-integration/continuous-integration.md)</td></tr><tr><td><b>Error Budget</b></td><td>Allowable failure quota; burn it too fast and releases halt</td><td>[Continuous Delivery](07-continuous-delivery/continuous-delivery.md)</td></tr><tr><td><b>Feedback</b></td><td>Signals (test results, metrics, alerts) returned to developers</td><td>[Observability &amp; Feedback](13-observability-and-feedback/observability-feedback.md)</td></tr><tr><td><b>Feature Flags</b></td><td>Runtime toggles switching code paths without redeploying; instant rollback</td><td>[Deployment Strategies](10-deployment-strategies/deployment-strategies.md)</td></tr><tr><td><b>Jenkins Agent</b></td><td>Machine offering executors to the controller, selected by labels</td><td>[Jenkins Agents](15-platforms-and-tools/jenkins/jenkins-agents.md)</td></tr><tr><td><b>Jenkinsfile</b></td><td>Pipeline-as-code file (Declarative or Scripted) in the repo</td><td>[Jenkins Pipelines](15-platforms-and-tools/jenkins/jenkins-pipelines.md)</td></tr><tr><td><b>Jenkins Controller</b></td><td>Schedules work, serves UI, holds JENKINS_HOME; runs no builds in prod</td><td>[Jenkins Architecture](15-platforms-and-tools/jenkins/jenkins-architecture.md)</td></tr><tr><td><b>Jenkins Credentials</b></td><td>Typed secrets store injected via bindings</td><td>[Jenkins Credentials](15-platforms-and-tools/jenkins/jenkins-credentials.md)</td></tr><tr><td><b>Jenkins Executor</b></td><td>One build slot on an agent</td><td>[Jenkins Agents](15-platforms-and-tools/jenkins/jenkins-agents.md)</td></tr><tr><td><b>Jenkins Plugin</b></td><td>Extension adding capabilities (git, docker, credentials)</td><td>[Jenkins Plugins](15-platforms-and-tools/jenkins/jenkins-plugins.md)</td></tr><tr><td><b>GitHub Actions</b></td><td>GitHub&#x27;s CI/CD: workflows of jobs/steps on hosted or self-hosted runners</td><td>[GitHub Actions](15-platforms-and-tools/github-actions.md)</td></tr><tr><td><b>Hermetic Build</b></td><td>Sealed from ambient machine state: pinned deps, clean env — same commit builds identically anywhere</td><td>[CI/CD Pipelines](06-ci-cd-pipelines/pipelines.md)</td></tr><tr><td><b>Job</b></td><td>Unit of executable work inside a stage</td><td>[CI/CD Pipelines](06-ci-cd-pipelines/pipelines.md)</td></tr><tr><td><b>Observability</b></td><td>Logs, metrics, traces that reveal system behavior</td><td>[Observability &amp; Feedback](13-observability-and-feedback/observability-feedback.md)</td></tr><tr><td><b>Pipeline</b></td><td>Automated workflow from commit to deployment</td><td>[CI/CD Pipelines](06-ci-cd-pipelines/pipelines.md)</td></tr><tr><td><b>Promotion</b></td><td>Moving a validated artifact toward the next environment</td><td>[Artifact Management](05-artifacts-and-packaging/artifact-management.md)</td></tr><tr><td><b>Pull Request (PR)</b></td><td>Proposal to merge a branch, with review + automated checks</td><td>[Git, Branching &amp; Pull Requests](01-source-control/git-branching-pull-requests.md)</td></tr><tr><td><b>Review App</b></td><td>Ephemeral live environment per merge request, destroyed on merge</td><td>[GitLab CI](15-platforms-and-tools/gitlab-ci.md)</td></tr><tr><td><b>Registry</b></td><td>System storing and distributing artifacts/images</td><td>[Artifact Management](05-artifacts-and-packaging/artifact-management.md)</td></tr><tr><td><b>Release</b></td><td>Version made available for deployment or users</td><td>[Continuous Delivery](07-continuous-delivery/continuous-delivery.md)</td></tr><tr><td><b>Release Train</b></td><td>Scheduled departures; green + approved changes ride, rest wait</td><td>[Environments &amp; Release](09-environments-and-release/environments-release.md)</td></tr><tr><td><b>Runner / Agent</b></td><td>Execution environment that runs pipeline jobs</td><td>[CI/CD Pipelines](06-ci-cd-pipelines/pipelines.md)</td></tr><tr><td><b>SBOM</b></td><td>Software Bill of Materials: machine-readable ingredient list of every package in an artifact</td><td>[Artifact Management](05-artifacts-and-packaging/artifact-management.md)</td></tr><tr><td><b>Security Scan</b></td><td>Automated check for vulnerabilities/secrets/misconfig</td><td>[CI/CD Pipelines](06-ci-cd-pipelines/pipelines.md)</td></tr><tr><td><b>SLO</b></td><td>Service Level Objective, e.g. 99.9% successful requests; breaching it burns the error budget</td><td>[Observability &amp; Feedback](13-observability-and-feedback/observability-feedback.md)</td></tr><tr><td><b>SLI</b></td><td>Service Level Indicator: what you measure (success ratio, p99 latency)</td><td>[Observability &amp; Feedback](13-observability-and-feedback/observability-feedback.md)</td></tr><tr><td><b>Stage</b></td><td>Logical phase of a pipeline (build, test, deploy)</td><td>[CI/CD Pipelines](06-ci-cd-pipelines/pipelines.md)</td></tr><tr><td><b>Shared Library</b></td><td>Versioned reusable pipeline code (`vars/`) consumed by N pipelines</td><td>[Lab 07](16-labs/07-jenkins-shared-library.md)</td></tr><tr><td><b>Smoke Test</b></td><td>Minimal post-deploy probe proving the app answers</td><td>[Testing Strategy](04-testing/testing-strategy.md)</td></tr><tr><td><b>Step</b></td><td>Individual operation inside a job</td><td>[CI/CD Pipelines](06-ci-cd-pipelines/pipelines.md)</td></tr></table></div>
+<footer><div class="wrap">CICD BY Nabawy</div></footer>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function getP(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}}
+function setP(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+$('#q').addEventListener('input',e=>{const q=e.target.value.toLowerCase();
+$$('table.gloss tr').forEach((r,i)=>{if(!i)return;r.style.display=r.textContent.toLowerCase().includes(q)?'':'none'})});
+</script></body></html>

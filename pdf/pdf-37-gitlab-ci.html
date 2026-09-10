@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD Engineering — PDF 37: GitLab CI</title>
+<style>
+:root{--paper:#f5f6f4;--white:#fff;--ink:#161a19;--muted:#68706d;--line:#d5dad7;--panel:#111614;--text-light:#e8eeeb;--text-muted:#9ca8a3;--accent:#00b87c;--accent-dark:#008f61}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0f0e;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+@page{size:A4;margin:0}
+.page{width:210mm;min-height:297mm;padding:16mm 16mm 19mm;margin:8mm auto;position:relative;background:var(--paper);page-break-after:always;overflow:hidden;display:flex;flex-direction:column}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}h3.sec,.phead h2{break-after:avoid}.terminal,table.cmp,.qa,.kv{break-inside:avoid}}
+.phead{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.phead .ch{color:var(--accent-dark);font-weight:700}
+.phead h2{font-size:22px;letter-spacing:1px;color:var(--ink);margin:2px 0 6px;text-transform:uppercase}
+.phead hr{border:none;border-top:1.5px solid var(--ink);margin-bottom:10px}
+.pfoot{margin-top:auto;padding-top:8px;font-size:9px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--line);letter-spacing:1px}
+h3.sec{font-size:23px;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px;break-after:avoid}
+h3.sec .n{color:var(--accent-dark);font-family:"Cascadia Code",Consolas,monospace;font-size:15px;margin-right:10px}
+p.body{font-size:14.5px;line-height:1.6;margin:8px 0}
+code,.mono{font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace}
+.cover{background:var(--panel);color:var(--text-light);justify-content:center}
+.cover .brand{font-size:10px;letter-spacing:4px;color:var(--text-muted)}
+.cover h1{font-size:44px;line-height:1.08;margin:10px 0 4px;letter-spacing:1px}
+.cover h1 span{color:var(--accent)}
+.cover .sub{font-size:15px;color:var(--text-muted);margin-bottom:18px}
+.cover .tri{font-size:10px;letter-spacing:2.5px;color:var(--accent);margin-bottom:26px;line-height:2}
+.cover .foot{font-size:9px;color:var(--text-muted);letter-spacing:2px;margin-top:auto;padding-top:20px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.cover .sig{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:26px;color:var(--accent);transform:rotate(-4deg);text-shadow:0 0 14px rgba(0,184,124,.45);white-space:nowrap}
+.opener .bignum{font-size:64px;font-weight:800;line-height:1}
+.opener .ctitle{font-size:26px;letter-spacing:3px;margin:2px 0 12px}
+.opener .lede{font-size:18px;line-height:1.65;max-width:155mm;margin:8px 0}
+.opener .lede em{color:var(--accent-dark);font-style:normal;font-weight:700}
+.kv{background:var(--white);border:1px solid var(--line);padding:10px 12px;margin:8px 0;font-size:13px;line-height:1.65}
+.kv b{color:var(--accent-dark)}
+.terminal{background:#101413;color:#d6e2dc;border-radius:8px;padding:12px 14px;font-family:"SFMono-Regular","Cascadia Code",Consolas,monospace;font-size:11.5px;line-height:1.7;margin:10px 0;overflow-x:auto;white-space:pre}
+.terminal .c{color:#8b9a94}
+table.cmp{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+table.cmp th,table.cmp td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+table.cmp th{background:var(--panel);color:var(--text-light);font-size:11px;letter-spacing:1px}
+table.cmp td{background:var(--white)}
+ul.tight{font-size:13px;line-height:1.7;margin:8px 0 8px 20px}
+ul.tight li{margin-bottom:4px}
+.printnote{font-size:10px;color:var(--muted);border:1px dashed var(--line);padding:10px 12px;margin-top:12px;line-height:1.7}
+/* m-reflow: screen-only mobile reflow; print unaffected */
+@media screen and (max-width:700px){.page{width:auto;min-height:0;margin:0 auto;padding:16px 14px 20px}h3.sec{font-size:19px}.opener .bignum{font-size:48px}.cover h1{font-size:32px}.cover .tri{font-size:9px}table.cmp{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}.terminal{font-size:10.5px}.phead h2{font-size:18px}}
+</style>
+</head>
+<body>
+
+<div class="page cover">
+<div class="brand">CI/CD SYSTEMS &nbsp;·&nbsp; PLATFORMS &nbsp;·&nbsp; PDF 37</div>
+<h1>GITLAB<br><span>CI</span></h1>
+<div class="sub">One product: repo, pipeline, registry, environments</div>
+<div class="tri">STAGES + NEEDS DAG · RUNNERS + TAGS<br>REVIEW APPS · MERGE TRAINS</div>
+<div class="foot"><span>01 / 04 · SAME CONCEPTS, GITLAB VOCABULARY</span><span class="sig">Nabawy</span></div>
+</div>
+
+<div class="page opener">
+<div class="phead"><span class="ch">Platforms</span> &nbsp; Chapter 37<hr><h2>Anatomy</h2>Stages · DAG · Rules</div>
+<div class="bignum">37</div>
+<div class="ctitle">ONE YAML</div>
+<p class="lede">Picking up from <em>GitHub Actions</em> — GitLab goes further: <em>repo, pipeline, registry, and environments are one product</em>, so the pipeline natively knows merge requests and review apps.</p>
+<h3 class="sec"><span class="n">01 /</span> Pipeline Anatomy</h3>
+<div class="terminal">stages: [build, test, deploy]
+build:
+  stage: build
+  script: [npm ci, npm run build]
+test:
+  stage: test
+  needs: [build]   <span class="c"># DAG edge, no stage wait</span></div>
+<div class="kv"><b>RULES —</b> stages order, same-stage jobs parallel · <span class="mono">needs:</span> DAGs across stages · <span class="mono">rules:</span> when jobs run (MR-only, main-only, paths) · <span class="mono">artifacts:</span> pass files on · <span class="mono">cache:</span> lockfile-keyed speed.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 37</span><span>02 / 04</span></div>
+</div>
+
+<div class="page">
+<div class="phead"><span class="ch">Platforms</span> &nbsp; Chapter 37<hr><h2>Fleet</h2>Runners · Envs</div>
+<h3 class="sec"><span class="n">02 /</span> Runners &amp; Tags</h3>
+<table class="cmp"><tr><th>Scope</th><th>Use</th></tr>
+<tr><td>Shared</td><td>Instance fleet; default for most jobs</td></tr>
+<tr><td>Group / project</td><td>GPU, private net, compliance isolation</td></tr>
+<tr><td>Tags</td><td>Route jobs to capable runners</td></tr></table>
+<h3 class="sec"><span class="n">03 /</span> Environments &amp; Trains</h3>
+<ul class="tight"><li><b>Environments</b> track what's deployed where; prod gates add approvals.</li><li><b>Review apps</b> (with <span class="mono">on_stop:</span> teardown) = built-in preview envs per MR.</li><li><b>Merge trains</b> serialize merges onto green <span class="mono">main</span> — the same race merge queues solve.</li><li>Failures: peak queues → tagged runners; silent skips → dry-run every <span class="mono">rules:</span> change; artifact bloat → <span class="mono">expire_in:</span>.</li></ul>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 37</span><span>03 / 04</span></div>
+</div>
+
+<div class="page">
+<div class="phead"><span class="ch">Platforms</span> &nbsp; Chapter 37<hr><h2>Handoff</h2>Next · Source</div>
+<h3 class="sec"><span class="n">04 /</span> Handoff</h3>
+<p class="body">Pipelines push changes — something must keep the cluster matching git. Continue in <b>PDF 38 · ArgoCD &amp; GitOps</b>.</p>
+<div class="printnote"><b>SOURCE:</b> <span class="mono">15-platforms-and-tools/gitlab-ci.md</span> · Print: Ctrl/Cmd+P → Save as PDF → Background graphics on → A4.</div>
+<div class="pfoot"><span>CI/CD Engineering Manual</span><span>CH 37</span><span>04 / 04</span></div>
+</div>
+
+</body>
+</html>
